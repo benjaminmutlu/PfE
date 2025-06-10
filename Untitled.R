@@ -1,5 +1,4 @@
 install.packages("readxl")
-Y
 library(readxl) 
 
 # Load all data form GitHub
