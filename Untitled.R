@@ -1,5 +1,4 @@
 install.packages("readxl")
-Y
 library(readxl) 
 
 # Load all data form GitHub
@@ -21,5 +20,6 @@ GDB_df <- GDB_df[, colSums(!is.na(GDB_df)) > 0]
 GDB_df <- GDB_df[, -c( 5, 12, 14, 16, 18)]
 colnames(GDB_df)[2:13] <- as.character(2013:2024)
 GDB_df <- GDB_df[-c(1,2,3),]
+Unemploymentlang <- Unemploymentlang[-c(1, 2), ]
 
 
