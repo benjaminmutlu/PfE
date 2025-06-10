@@ -21,5 +21,12 @@ GDB_df <- GDB_df[, -c( 5, 12, 14, 16, 18)]
 colnames(GDB_df)[2:13] <- as.character(2013:2024)
 GDB_df <- GDB_df[-c(1,2,3),]
 Unemploymentlang <- Unemploymentlang[-c(1, 2), ]
+GDB_df <- GDB_df %>%
+  rowwise() %>%
+  mutate(
+    GDP_before_covid = round((prod(1 + c_across(`2015`:`2019`) / 100, na.rm = TRUE) - 1) * 100, 2),
+    GDP_after_covid  = round((prod(1 + c_across(`2020`:`2024`) / 100, na.rm = TRUE) - 1) * 100, 2)
+  ) %>%
+  ungroup()
 
 
