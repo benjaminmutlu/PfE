@@ -1,5 +1,13 @@
+# Load necessary libraries
+
 install.packages("readxl")
 library(readxl) 
+install.packages("dplyr")
+library(dplyr)
+install.packages("tidyr")
+library(tidyr)
+install.packages("readr")
+library(readr)
 
 # Load all data form GitHub
 
@@ -11,6 +19,7 @@ Unemploymentlang <- read_xlsx(path = "lfsa_ugad$defaultview_spreadsheet.xlsx", "
 Unemploymentlang <- Unemploymentlang[12:49, ]
 Unemploymentlang <- Unemploymentlang[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
 rownames(Unemploymentlang) <- NULL
+Unemploymentlang <- Unemploymentlang[-c(1, 2), ]
 
 # Clean data GDP
 
@@ -20,13 +29,18 @@ GDB_df <- GDB_df[, colSums(!is.na(GDB_df)) > 0]
 GDB_df <- GDB_df[, -c( 5, 12, 14, 16, 18)]
 colnames(GDB_df)[2:13] <- as.character(2013:2024)
 GDB_df <- GDB_df[-c(1,2,3),]
-Unemploymentlang <- Unemploymentlang[-c(1, 2), ]
+
+# add variables in GDP_df (GDP_before_covid and GDP_after_covid)
+
 GDB_df <- GDB_df %>%
+  mutate(across(`2015`:`2024`, ~ parse_number(as.character(.)))) %>%
   rowwise() %>%
   mutate(
-    GDP_before_covid = round((prod(1 + c_across(`2015`:`2019`) / 100, na.rm = TRUE) - 1) * 100, 2),
-    GDP_after_covid  = round((prod(1 + c_across(`2020`:`2024`) / 100, na.rm = TRUE) - 1) * 100, 2)
+    GDP_before_covid = round((prod(1 + c_across(`2015`:`2019`)/100, na.rm=TRUE) - 1)*100, 2),
+    GDP_after_covid  = round((prod(1 + c_across(`2020`:`2024`)/100, na.rm=TRUE) - 1)*100, 2)
   ) %>%
   ungroup()
+  
+
 
 
