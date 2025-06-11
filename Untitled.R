@@ -85,3 +85,4 @@ ggplot(GDP_EU, aes(x = Year, y = GDP)) +
   theme_minimal()
 
 
+
