@@ -6,7 +6,7 @@ library(readxl)
 
 # Load all data form GitHub
 
-GDB_df <- read_xlsx(path = "tec00115_page_spreadsheet.xlsx", "Sheet 1") 
+GDP_df <- read_xlsx(path = "tec00115_page_spreadsheet.xlsx", "Sheet 1") 
 Unemploymentlang <- read_xlsx(path = "lfsa_ugad$defaultview_spreadsheet.xlsx", "Sheet 1")
 View(Unemploymentlang)
 unemp_men <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 6")
@@ -42,28 +42,28 @@ Unemploymentlang$avg_men <- unemp_men$avg_men
 
 # Clean data GDP
 
-GDB_df <- GDB_df[10:52, ]
-rownames(GDB_df) <- NULL
-GDB_df <- GDB_df[, colSums(!is.na(GDB_df)) > 0]
-GDB_df <- GDB_df[, -c( 5, 12, 14, 16, 18)]
-colnames(GDB_df)[2:13] <- as.character(2013:2024)
-GDB_df[ , as.character(2013:2024)] <- lapply(GDB_df[ , as.character(2013:2024)], as.numeric)
-GDB_df <- GDB_df[-c(1,2,3),]
+GDP_df <- GDP_df[10:52, ]
+rownames(GDP_df) <- NULL
+GDP_df <- GDP_df[, colSums(!is.na(GDP_df)) > 0]
+GDP_df <- GDP_df[, -c( 5, 12, 14, 16, 18)]
+colnames(GDP_df)[2:13] <- as.character(2013:2024)
+GDP_df[ , as.character(2013:2024)] <- lapply(GDP_df[ , as.character(2013:2024)], as.numeric)
+GDP_df <- GDP_df[-c(1,2,3),]
 
 # Creating a new variable in the GDP dataset
 
-GDB_df <- GDB_df %>%
+GDP_df <- GDP_df %>%
   rowwise() %>%
   mutate(
     GDP_before_covid = round((prod(1 + c_across(`2015`:`2019`) / 100, na.rm = TRUE) - 1) * 100, 2),
     GDP_after_covid  = round((prod(1 + c_across(`2020`:`2024`) / 100, na.rm = TRUE) - 1) * 100, 2)
   ) %>%
   ungroup()
-View(GDB_df)
+View(GDP_df)
 
 # Temporal variation plot: EU GDP growth from 2015 to 2024
 
-gdp_growth <- GDB_df %>%
+gdp_growth <- GDP_df %>%
   select(all_of(as.character(2013:2024)))
 
 
