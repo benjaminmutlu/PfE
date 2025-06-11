@@ -1,16 +1,44 @@
+install.packages("tidyverse")
+library(tidyverse)
 install.packages("readxl")
 library(readxl) 
+install.packages("readxl", dependencies = TRUE)
 
 # Load all data form GitHub
 
 GDB_df <- read_xlsx(path = "tec00115_page_spreadsheet.xlsx", "Sheet 1") 
-Unemploymentlang <- read_xlsx(path = "lfsa_ugad$defaultview_spreadsheet.xlsx", "Sheet 1") 
+Unemploymentlang <- read_xlsx(path = "lfsa_ugad$defaultview_spreadsheet.xlsx", "Sheet 1")
+View(Unemploymentlang)
+unemp_men <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 6")
+unemp_women <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 11")
+
+# clean data unemp_women
+unemp_women <- unemp_women[14:49, ]
+unemp_women <- unemp_women[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
+rownames(unemp_women) <- NULL
+colnames(unemp_women)[2:11] <- as.character(2015:2024)
+unemp_women[, 2:11] <- lapply(unemp_women[, 2:11], function(x) as.numeric(as.character(x)))
+unemp_women$avg_women <- rowMeans(unemp_women[, 2:11], na.rm = TRUE)
+
+# clean data unemp_men
+unemp_men <- unemp_men[14:49, ]
+unemp_men <- unemp_men[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
+rownames(unemp_men) <- NULL
+colnames(unemp_men)[2:11] <- as.character(2015:2024)
+unemp_men[, 2:11] <- lapply(unemp_men[, 2:11], function(x) as.numeric(as.character(x)))
+unemp_men$avg_men <- rowMeans(unemp_men[, 2:11], na.rm = TRUE)
+
 
 # Clean data Unemployment 
-
-Unemploymentlang <- Unemploymentlang[12:49, ]
+Unemploymentlang <- Unemploymentlang[14:49, ]
 Unemploymentlang <- Unemploymentlang[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
 rownames(Unemploymentlang) <- NULL
+colnames(Unemploymentlang)[2:11] <- as.character(2015:2024)
+
+# Creating a new variable in the Unemploymentlang dataset
+Unemploymentlang$avg_women <- unemp_women$avg_women
+Unemploymentlang$avg_men <- unemp_men$avg_men
+
 
 # Clean data GDP
 
@@ -19,8 +47,11 @@ rownames(GDB_df) <- NULL
 GDB_df <- GDB_df[, colSums(!is.na(GDB_df)) > 0]
 GDB_df <- GDB_df[, -c( 5, 12, 14, 16, 18)]
 colnames(GDB_df)[2:13] <- as.character(2013:2024)
+GDB_df[ , as.character(2013:2024)] <- lapply(GDB_df[ , as.character(2013:2024)], as.numeric)
 GDB_df <- GDB_df[-c(1,2,3),]
-Unemploymentlang <- Unemploymentlang[-c(1, 2), ]
+
+# Creating a new variable in the GDP dataset
+
 GDB_df <- GDB_df %>%
   rowwise() %>%
   mutate(
@@ -28,5 +59,29 @@ GDB_df <- GDB_df %>%
     GDP_after_covid  = round((prod(1 + c_across(`2020`:`2024`) / 100, na.rm = TRUE) - 1) * 100, 2)
   ) %>%
   ungroup()
+View(GDB_df)
+
+# Temporal variation plot: EU GDP growth from 2015 to 2024
+
+colnames(GDB_df)
+
+GDP_EU <- GDB_df %>%
+  select(all_of(as.character(2015:2024))) %>%
+  summarise(across(everything(), ~mean(as.numeric(.), na.rm = TRUE))) %>%
+  pivot_longer(cols = everything(), names_to = "Year", values_to = "GDP") %>%
+  mutate(Year = as.integer(Year))
+
+
+ggplot(GDP_EU, aes(x = Year, y = GDP)) +
+  geom_line(color = "blue", size = 1) +
+  geom_point(color = "blue") +
+  geom_vline(xintercept = 2020, color = "red", linetype = "dashed") +
+  labs(
+    title = "EU GDP Growth (2015–2024)",
+    subtitle = "Red dashed line = Start of COVID-19",
+    x = "Year",
+    y = "GDP (average across countries)"
+  ) +
+  theme_minimal()
 
 
