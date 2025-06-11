@@ -63,26 +63,36 @@ View(GDB_df)
 
 # Temporal variation plot: EU GDP growth from 2015 to 2024
 
-colnames(GDB_df)
-
-GDP_EU <- GDB_df %>%
-  select(all_of(as.character(2015:2024))) %>%
-  summarise(across(everything(), ~mean(as.numeric(.), na.rm = TRUE))) %>%
-  pivot_longer(cols = everything(), names_to = "Year", values_to = "GDP") %>%
-  mutate(Year = as.integer(Year))
+gdp_growth <- GDB_df %>%
+  select(all_of(as.character(2013:2024)))
 
 
-ggplot(GDP_EU, aes(x = Year, y = GDP)) +
+avg_growth_per_year <- colMeans(gdp_growth, na.rm = TRUE) / 100  # omzetting naar factor
+
+
+growth_df <- data.frame(
+  Year = 2013:2024,
+  GrowthRate = avg_growth_per_year
+)
+
+
+growth_df <- growth_df %>%
+  mutate(
+    TotalGDP = cumprod(1 + GrowthRate) * 100  # basisjaar = 100
+  )
+
+
+ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
   geom_line(color = "blue", size = 1) +
   geom_point(color = "blue") +
   geom_vline(xintercept = 2020, color = "red", linetype = "dashed") +
+  scale_x_continuous(breaks = 2013:2024) +  # elk jaar tonen
   labs(
-    title = "EU GDP Growth (2015–2024)",
-    subtitle = "Red dashed line = Start of COVID-19",
+    title = "Cumulative EU GDP Growth (2013–2024)",
+    subtitle = "Base year = 100, red dashed line = COVID-19 start",
     x = "Year",
-    y = "GDP (average across countries)"
+    y = "Cumulative GDP Index"
   ) +
   theme_minimal()
-
 
 
