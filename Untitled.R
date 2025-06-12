@@ -192,7 +192,29 @@ ggplot(combo_df, aes(x = Year)) +
   )
 
 
-    
+    #////// kaart /////
 
-    
-  
+# 1. Installeer en laad de benodigde packages (alleen 1e keer)
+install.packages("rworldmap")
+install.packages("dplyr")
+library(rworldmap)
+library(dplyr)
+
+# 2. Convert to numeric and calculate average unemployment per country
+unemp_map <- Unemploymentlang %>%
+  mutate(across(`2015`:`2024`, ~as.numeric(as.character(.)))) %>%
+  mutate(avg_unemp = rowMeans(select(., `2015`:`2024`), na.rm = TRUE)) %>%
+  select(Country = 1, avg_unemp)
+
+# 3. Koppel je data aan de wereldkaart
+mapped_data <- joinCountryData2Map(unemp_map,
+                                   joinCode = "NAME",
+                                   nameJoinColumn = "Country")
+
+# 4. Maak de kaart met automatische indeling (laag/gemiddeld/hoog)
+mapCountryData(mapped_data,
+               nameColumnToPlot = "avg_unemp",
+               catMethod = "quantiles",      # automatisch in 3 groepen verdelen
+               numCats = 3,
+               mapTitle = "Average Unemployment in Europe (2015–2024)",
+               colourPalette = c("green", "yellow", "red"))
