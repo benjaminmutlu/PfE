@@ -1,12 +1,12 @@
-#install.packages("tidyverse")
+install.packages("tidyverse")
 library(tidyverse)
-#install.packages("readxl")
+install.packages("readxl")
 library(readxl) 
-#install.packages("readxl", dependencies = TRUE)
+install.packages("readxl", dependencies = TRUE)
 
 # Load all data form GitHub
 
-GDP_df <- read_xlsx(path = "tec00115_page_spreadsheet.xlsx", "Sheet 1") 
+GDB_df <- read_xlsx(path = "tec00115_page_spreadsheet.xlsx", "Sheet 1") 
 Unemploymentlang <- read_xlsx(path = "lfsa_ugad$defaultview_spreadsheet.xlsx", "Sheet 1")
 View(Unemploymentlang)
 unemp_men <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 6")
@@ -42,118 +42,181 @@ Unemploymentlang$avg_men <- unemp_men$avg_men
 
 # Clean data GDP
 
-GDP_df <- GDP_df[10:52, ]
-rownames(GDP_df) <- NULL
-GDP_df <- GDP_df[, colSums(!is.na(GDP_df)) > 0]
-GDP_df <- GDP_df[, -c( 5, 12, 14, 16, 18)]
-colnames(GDP_df)[2:13] <- as.character(2013:2024)
-GDP_df[ , as.character(2013:2024)] <- lapply(GDP_df[ , as.character(2013:2024)], as.numeric)
-GDP_df <- GDP_df[-c(1,2,3),]
+GDB_df <- GDB_df[10:52, ]
+rownames(GDB_df) <- NULL
+GDB_df <- GDB_df[, colSums(!is.na(GDB_df)) > 0]
+GDB_df <- GDB_df[, -c( 5, 12, 14, 16, 18)]
+colnames(GDB_df)[2:13] <- as.character(2013:2024)
+GDB_df[ , as.character(2013:2024)] <- lapply(GDB_df[ , as.character(2013:2024)], as.numeric)
+GDB_df <- GDB_df[-c(1,2,3),]
 
 # Creating a new variable in the GDP dataset
 
-GDP_df <- GDP_df %>%
+GDB_df <- GDB_df %>%
   rowwise() %>%
   mutate(
     GDP_before_covid = round((prod(1 + c_across(`2015`:`2019`) / 100, na.rm = TRUE) - 1) * 100, 2),
     GDP_after_covid  = round((prod(1 + c_across(`2020`:`2024`) / 100, na.rm = TRUE) - 1) * 100, 2)
   ) %>%
   ungroup()
-View(GDP_df)
+View(GDB_df)
 
-# Temporal variation plot: EU GDP growth from 2015 to 2024
 
-gdp_growth <- GDP_df %>%
+
+
+
+# ////Event Analysis Plot-Plotting the GDP growth from 2013 to 2024-////////
+gdp_growth <- GDB_df %>%
   select(all_of(as.character(2013:2024)))
-
-
 avg_growth_per_year <- colMeans(gdp_growth, na.rm = TRUE) / 100  # omzetting naar factor
-
-
 growth_df <- data.frame(
   Year = 2013:2024,
   GrowthRate = avg_growth_per_year
 )
-
-
 growth_df <- growth_df %>%
   mutate(
     TotalGDP = cumprod(1 + GrowthRate) * 100  # basisjaar = 100
   )
 
-
 ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
   geom_line(color = "blue", size = 1) +
   geom_point(color = "blue") +
-  geom_vline(xintercept = 2020, color = "red", linetype = "dashed") +
   scale_x_continuous(breaks = 2013:2024) +  # elk jaar tonen
   labs(
     title = "Cumulative EU GDP Growth (2013–2024)",
-    subtitle = "Base year = 100, red dashed line = COVID-19 start",
+    subtitle = "Base year = 100, ",
     x = "Year",
     y = "Cumulative GDP Index"
-  ) +
-  theme_minimal ()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-library(tidyverse)
-
-# Pivot both datasets to long form and add a Gender column
-men_long <- unemp_men %>%
-  select(Country = 1, `2015`:`2024`) %>%
-  pivot_longer(`2015`:`2024`, names_to = "Year", values_to = "Unemployment") %>%
-  mutate(Gender = "Men")
-
-women_long <- unemp_women %>%
-  select(Country = 1, `2015`:`2024`) %>%
-  pivot_longer(`2015`:`2024`, names_to = "Year", values_to = "Unemployment") %>%
-  mutate(Gender = "Women")
-
-# Combine and factor Year
-unemp_gender <- bind_rows(men_long, women_long) %>%
-  mutate(Year = factor(Year, levels = as.character(2015:2024)))
-
-# Plot the boxplot with a shorter y–axis
-ggplot(unemp_gender, aes(x = Year, y = Unemployment, fill = Gender)) +
-  geom_boxplot(
-    position      = position_dodge(width = 0.8),
-    outlier.shape = NA
-  ) +
-  scale_y_continuous(
-    limits = c(0, 30),         # set the lower & upper bounds
-    expand = expansion(0, 0)   # remove padding at axis ends
-  ) +
-  labs(
-    title = "Unemployment Rates: Men vs Women (EU Countries, 2015–2024)",
-    x     = "Year",
-    y     = "Unemployment (%)",
-    fill  = "Gender"
   ) +
   theme_minimal()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ///Temporal Variation Plot/EU Economic Development: GDP Index and Average Unemployment (2015–2024)///
+# 📊 1. Maak je samengestelde GDP-index klaar (2015–2024)
+gdp_growth <- GDB_df %>%
+  select(all_of(as.character(2015:2024)))
+
+avg_growth_per_year <- colMeans(gdp_growth, na.rm = TRUE) / 100
+
+growth_df <- data.frame(
+  Year = 2015:2024,
+  GrowthRate = avg_growth_per_year
+) %>%
+  mutate(TotalGDP = cumprod(1 + GrowthRate) * 100)
+
+# 📊 2. Maak gemiddelde werkloosheid klaar (2015–2024)
+unemp_df <- Unemploymentlang %>%
+  summarise(across(all_of(as.character(2015:2024)), ~mean(as.numeric(.), na.rm = TRUE))) %>%
+  pivot_longer(cols = everything(), names_to = "Year", values_to = "Unemployment") %>%
+  mutate(Year = as.integer(Year))
+
+# 🔗 3. Combineer de twee datasets
+combo_df <- left_join(growth_df, unemp_df, by = "Year")
+
+# 🎨 4. Plot met dubbele y-as en mooie styling
+
+ggplot(combo_df, aes(x = Year)) +
+  # Blauwe GDP-lijn (links)
+  geom_line(aes(y = TotalGDP), color = "#0072B2", size = 1.3) +
+  geom_point(aes(y = TotalGDP), color = "#0072B2", size = 2) +
+  
+  # Oranje werkloosheidslijn (rechts, herschaald)
+  geom_line(aes(y = Unemployment / 7.5), color = "#E69F00", size = 1.3) +
+  geom_point(aes(y = Unemployment / 7.5), color = "#E69F00", size = 2) +
+  
+  # Y-assen
+  scale_y_continuous(
+    limits = c(0, 135),
+    name = "Cumulative GDP Index (Base year = 100)",
+    sec.axis = sec_axis(~.*7.5, name = "Average Unemployment (in thousands)", breaks = seq(0, 1000, 250))
+  ) +
+  
+  # X-as per jaar tonen
+  scale_x_continuous(breaks = 2015:2024) +
+  
+  # Titel & opmaak
+  labs(
+    title = "EU GDP Growth vs. Average Unemployment (2015–2024)",
+    subtitle = "Left: GDP Index (blue), Right: Avg. Unemployment (orange)",
+    x = "Year"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    axis.title.y.left = element_text(color = "#0072B2", face = "bold"),
+    axis.title.y.right = element_text(color = "#E69F00", face = "bold"),
+    axis.text.y.left = element_text(color = "#0072B2"),
+    axis.text.y.right = element_text(color = "#E69F00")
+  )
+    
+
+    
+  
