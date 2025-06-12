@@ -133,29 +133,6 @@ ggplot(unemp_gender, aes(x = Year, y = Unemployment, fill = Gender)) +
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # ///Temporal Variation Plot/EU Economic Development: GDP Index and Average Unemployment (2015–2024)///
 # 📊 1. Maak je samengestelde GDP-index klaar (2015–2024)
 gdp_growth <- GDB_df %>%
@@ -213,6 +190,8 @@ ggplot(combo_df, aes(x = Year)) +
     axis.text.y.left = element_text(color = "#0072B2"),
     axis.text.y.right = element_text(color = "#E69F00")
   )
+
+
     
 
     
