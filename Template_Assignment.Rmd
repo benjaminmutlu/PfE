@@ -29,7 +29,6 @@ require(ggplot2)
 
 Chris van Weerdenburg, Arsema Tewelde, Alan Peralta Camacho, Benjamin Mutlu, Cihan Öztürk, Israa Shidai, Jeremey Li
 
-
 Include the tutorial group number
 
 Include your tutorial lecturer's name
@@ -50,7 +49,6 @@ Include the following:
 
 ## 2.1 Load in the data
 
-
 ```{r loading_data}
 GDB_df <- read_xlsx(path = "tec00115_page_spreadsheet.xlsx", "Sheet 1") 
 Unemploymentlang <- read_xlsx(path = "lfsa_ugad$defaultview_spreadsheet.xlsx", "Sheet 1")
@@ -64,7 +62,12 @@ midwest is an example dataset included in the tidyverse package
 ## 2.2 Provide a short summary of the dataset(s)
 
 ```{r echo=TRUE}
-head(GDB_df)
+head(GDB_df[, 1:10], n = 20)
+head(Unemploymentlang[, 1:10], n = 20)
+head(unemp_men[, 1:10], n = 20)
+head(unemp_women[, 1:10], n = 20)
+```
+
 ```
 
 In this case we see 28 variables, but we miss some information on what units they are in. We also don't know anything about the year/moment in which this data has been captured.
@@ -84,6 +87,20 @@ Think of things like:
 # Part 3 - Quantifying
 
 ## 3.1 Data cleaning
+```{r echo=TRUE}
+# Clean data Unemployment 
+Unemploymentlang <- Unemploymentlang[14:49, ]
+Unemploymentlang <- Unemploymentlang[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
+rownames(Unemploymentlang) <- NULL
+colnames(Unemploymentlang)[2:11] <- as.character(2015:2024)
+
+```
+
+```{r echo=TRUE}
+head(Unemploymentlang[, 1:10], n = 15)
+```
+
+-
 
 Say we want to include only larger distances (above 2) in our dataset, we can filter for this.
 
@@ -165,6 +182,4 @@ Provide the link to your PUBLIC repository here: ...
 
 ## 5.2 Reference list
 
-
 Use APA referencing throughout your document.
-
