@@ -11,16 +11,24 @@ output: pdf_document
 install.packages("tidyverse")
 install.packages("readxl")
 install.packages("rworldmap")
-install.packages("dplyr")
+install.packages("dplyr") 
+install.packages("ggplot2")
+
 ```
 
 ```{r packages}
 require(tidyverse)
+require(readxl)
+require(rworldmap)
+require(dplyr)
+require(ggplot2)
+
 ```
 
 # Title Page
 
-Include your names
+Chris van Weerdenburg, Arsema Tewelde, Alan Peralta Camacho, Benjamin Mutlu, Cihan Öztürk, Israa Shidai, Jeremey Li
+
 
 Include the tutorial group number
 
@@ -42,18 +50,21 @@ Include the following:
 
 ## 2.1 Load in the data
 
-Preferably from a URL, but if not, make sure to download the data and store it in a shared location that you can load the data in from. Do not store the data in a folder you include in the Github repository!
 
 ```{r loading_data}
-dataset <- midwest
+GDB_df <- read_xlsx(path = "tec00115_page_spreadsheet.xlsx", "Sheet 1") 
+Unemploymentlang <- read_xlsx(path = "lfsa_ugad$defaultview_spreadsheet.xlsx", "Sheet 1")
+unemp_men <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 6")
+unemp_women <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 11")
+
 ```
 
 midwest is an example dataset included in the tidyverse package
 
 ## 2.2 Provide a short summary of the dataset(s)
 
-```{r}
-head(dataset)
+```{r echo=TRUE}
+head(GDB_df)
 ```
 
 In this case we see 28 variables, but we miss some information on what units they are in. We also don't know anything about the year/moment in which this data has been captured.
