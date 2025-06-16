@@ -168,3 +168,13 @@ Provide the link to your PUBLIC repository here: ...
 
 Use APA referencing throughout your document.
 
+
+
+
+
+
+
+
+
+
+Eurostat. (n.d.). Unemployment by sex and age – monthly data [Data set]. European Commission. https://ec.europa.eu/eurostat/databrowser/view/lfsa_ugad/default/table?lang=en
