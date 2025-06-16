@@ -3,6 +3,8 @@ library(tidyverse)
 #install.packages("readxl")
 library(readxl) 
 #install.packages("readxl", dependencies = TRUE)
+#install.packages("rworldmap")
+#install.packages("dplyr")
 
 # Load all data form GitHub
 
@@ -191,6 +193,8 @@ ggplot(combo_df, aes(x = Year)) +
     axis.text.y.left = element_text(color = "#0072B2"),
     axis.text.y.right = element_text(color = "#E69F00")
   )
+
+
 
 
     #// European Unemployment Map (2015–2024) ////
