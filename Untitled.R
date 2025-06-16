@@ -65,7 +65,9 @@ View(GDB_df)
 
 
 
-# ////Event Analysis Plot-Plotting the GDP growth from 2013 to 2024-////////
+# //Event Analysis Plot//Plotting the GDP growth from 2013 to 2024-//////
+library(ggplot2)
+
 gdp_growth <- GDB_df %>%
   select(all_of(as.character(2013:2024)))
 avg_growth_per_year <- colMeans(gdp_growth, na.rm = TRUE) / 100  # omzetting naar factor
@@ -81,6 +83,7 @@ growth_df <- growth_df %>%
 ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
   geom_line(color = "blue", size = 1) +
   geom_point(color = "blue") +
+  geom_vline(xintercept = 2020, color = "red", linetype = "dashed", size = 1) +
   scale_x_continuous(breaks = 2013:2024) +  # elk jaar tonen
   labs(
     title = "Cumulative EU GDP Growth (2013–2024)",
@@ -91,7 +94,7 @@ ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
   theme_minimal()
 
 
-
+#///Sub-population Plot///
 
 library(tidyverse)
 
@@ -127,8 +130,6 @@ ggplot(unemp_gender, aes(x = Year, y = Unemployment, fill = Gender)) +
     fill  = "Gender"
   ) +
   theme_minimal()
-
-
 
 
 
@@ -192,29 +193,39 @@ ggplot(combo_df, aes(x = Year)) +
   )
 
 
-    #////// kaart /////
+    #// European Unemployment Map (2015–2024) ////
 
-# 1. Installeer en laad de benodigde packages (alleen 1e keer)
-install.packages("rworldmap")
-install.packages("dplyr")
-library(rworldmap)
-library(dplyr)
 
-# 2. Convert to numeric and calculate average unemployment per country
-unemp_map <- Unemploymentlang %>%
+ # 1. Laad de benodigde libraries
+               library(rworldmap)
+               library(dplyr)
+               
+ # 2. Bereken gemiddelde werkloosheid per land (2015–2024)
+  unemp_map <- Unemploymentlang %>%
   mutate(across(`2015`:`2024`, ~as.numeric(as.character(.)))) %>%
   mutate(avg_unemp = rowMeans(select(., `2015`:`2024`), na.rm = TRUE)) %>%
   select(Country = 1, avg_unemp)
-
-# 3. Koppel je data aan de wereldkaart
-mapped_data <- joinCountryData2Map(unemp_map,
-                                   joinCode = "NAME",
-                                   nameJoinColumn = "Country")
-
-# 4. Maak de kaart met automatische indeling (laag/gemiddeld/hoog)
-mapCountryData(mapped_data,
-               nameColumnToPlot = "avg_unemp",
-               catMethod = "quantiles",      # automatisch in 3 groepen verdelen
-               numCats = 3,
-               mapTitle = "Average Unemployment in Europe (2015–2024)",
-               colourPalette = c("green", "yellow", "red"))
+  
+  # 2b. Corrigeer landnamen
+  unemp_map$Country[unemp_map$Country == "Czechia"] <- "Czech Rep."
+  unemp_map$Country[unemp_map$Country == "Bosnia and Herzegovina"] <- "Bosnia and Herz."
+  unemp_map$Country[unemp_map$Country == "North Macedonia"] <- "Macedonia"
+  unemp_map$Country[unemp_map$Country == "Türkiye"] <- "Turkey"
+               
+ # 3. Koppel de data aan de wereldkaart
+  mapped_data <- joinCountryData2Map(unemp_map,
+                                     joinCode = "NAME",
+                                     nameJoinColumn = "Country")
+               
+ # 4. Maak de kaart met focus op Europa
+  mapCountryData(mapped_data,
+                 nameColumnToPlot = "avg_unemp",
+                 catMethod = "quantiles",
+                 numCats = 3,
+                 mapTitle = "Average Unemployment in Europe (2015–2024)\nGreen = Low, Yellow = Medium, Red = High",
+                 colourPalette = c("green", "yellow", "red"),
+                 mapRegion = "Europe")
+                
+  -
+               
+               
