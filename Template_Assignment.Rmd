@@ -1,5 +1,5 @@
 ---
-title: "Template"
+title: "Research Unemployment to GDP"
 author: "Studentnames and studentnumbers here"
 date: "`r Sys.Date()`"
 output: pdf_document
@@ -9,6 +9,9 @@ output: pdf_document
 
 ```{r package_install, include=FALSE}
 install.packages("tidyverse")
+install.packages("readxl")
+install.packages("rworldmap")
+install.packages("dplyr")
 ```
 
 ```{r packages}
