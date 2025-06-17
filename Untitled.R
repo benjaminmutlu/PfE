@@ -1,10 +1,14 @@
 #install.packages("tidyverse")
-library(tidyverse)
 #install.packages("readxl")
-library(readxl) 
 #install.packages("readxl", dependencies = TRUE)
 #install.packages("rworldmap")
 #install.packages("dplyr")
+
+library(ggplot2)
+library(rworldmap)
+library(dplyr)
+library(readxl) 
+library(tidyverse)
 
 # Load all data form GitHub
 
@@ -61,14 +65,6 @@ GDP_df <- GDP_df %>%
     GDP_after_covid  = round((prod(1 + c_across(`2020`:`2024`) / 100, na.rm = TRUE) - 1) * 100, 2)
   ) %>%
   ungroup()
-View(GDP_df)
-
-
-
-
-
-# //Event Analysis Plot//Plotting the GDP growth from 2013 to 2024-//////
-library(ggplot2)
 
 gdp_growth <- GDP_df %>%
   select(all_of(as.character(2013:2024)))
@@ -81,6 +77,9 @@ growth_df <- growth_df %>%
   mutate(
     TotalGDP = cumprod(1 + GrowthRate) * 100  # basisjaar = 100
   )
+
+
+# //Event Analysis Plot//Plotting the GDP growth from 2013 to 2024-//////
 
 ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
   geom_line(color = "blue", size = 1) +
@@ -97,8 +96,6 @@ ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
 
 
 #///Sub-population Plot///
-
-library(tidyverse)
 
 # Pivot both datasets to long form and add a Gender column
 men_long <- unemp_men %>%
@@ -132,8 +129,6 @@ ggplot(unemp_gender, aes(x = Year, y = Unemployment, fill = Gender)) +
     fill  = "Gender"
   ) +
   theme_minimal()
-
-
 
 
 # ///Temporal Variation Plot/EU Economic Development: GDP Index and Average Unemployment (2015–2024)///
@@ -195,34 +190,27 @@ ggplot(combo_df, aes(x = Year)) +
   )
 
 
-
-
-
     #// European Unemployment Map (2015–2024) ////
 
-
- # 1. Laad de benodigde libraries
-               library(rworldmap)
-               library(dplyr)
                
- # 2. Bereken gemiddelde werkloosheid per land (2015–2024)
+ # Bereken gemiddelde werkloosheid per land (2015–2024)
   unemp_map <- Unemploymentlang %>%
   mutate(across(`2015`:`2024`, ~as.numeric(as.character(.)))) %>%
   mutate(avg_unemp = rowMeans(select(., `2015`:`2024`), na.rm = TRUE)) %>%
   select(Country = 1, avg_unemp)
   
-  # 2b. Corrigeer landnamen
+  # Corrigeer landnamen
   unemp_map$Country[unemp_map$Country == "Czechia"] <- "Czech Rep."
   unemp_map$Country[unemp_map$Country == "Bosnia and Herzegovina"] <- "Bosnia and Herz."
   unemp_map$Country[unemp_map$Country == "North Macedonia"] <- "Macedonia"
   unemp_map$Country[unemp_map$Country == "Türkiye"] <- "Turkey"
                
- # 3. Koppel de data aan de wereldkaart
+ # Koppel de data aan de wereldkaart
   mapped_data <- joinCountryData2Map(unemp_map,
                                      joinCode = "NAME",
                                      nameJoinColumn = "Country")
                
- # 4. Maak de kaart met focus op Europa
+ # Maak de kaart met focus op Europa
   mapCountryData(mapped_data,
                  nameColumnToPlot = "avg_unemp",
                  catMethod = "quantiles",
