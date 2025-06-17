@@ -47,6 +47,36 @@ Include the following:
 
 # Part 2 - Data Sourcing
 
+We have the following datasets:
+
+-   **Unemployment by sex, age and duration of unemployment (Eurostat)**
+
+-   **Real GDP growth rate - volume (Eurostat)**
+
+These datasets are published and sourced by Eurostat. Eurostat is the statistical office of the European Union. They source their data through the ESS which is the European Statistical System. These datasets are also collected by each country's own National Statistical Institute for example the data Eurostat collects from the Netherlands is from the CBS (Centraal Bureau Statistiek). This data collection is done according to established EU regulations and standards, ensuring a degree of harmonization across the EU. The national authorities then transmit the verified and analyzed data to Eurostat.
+
+These datasets have some differences but also similarities.
+
+**Key differences:**
+
+-   GDP per capita relates to overall economic performances, while youth unemployment reflects specific labor market outcomes.
+
+-   GDP includes the whole population; youth unemployment only concerns young people who are economically active.
+
+-   GDP is measured in economic value (adjusted for PPS); youth unemployment is a rate (percentage).
+
+**Complementary:**
+
+-   A country may have high GDP per capita but also high youth unemployment, indicating that economic gains are not evenly distributed or accessible.
+
+-   Using both datasets together provides a more comprehensive view of socio-economic well-being, economic performance (GDP) and inclusiveness or opportunity (youth employment).
+
+-   This combination can be especially useful for analyzing whether economic growth is benefiting younger generations.
+
+These two datasets were a perfect match for our topic because they gave us an in depth look into the correlation between the GDP growth rate and Unemployment rates but also the unemployment rates and sex, age and duration of unemployment these datasets were crucial for us to conclude whether Covid-19 had an impact on unemployment rates.
+
+The datasets we used were quite complete however some countries the data was not sourced for example: Bosnia and Herzegovina and Lichtenstein. Other than that were there no complaints about the datasets, and were they very explicit.
+
 ## 2.1 Load in the data
 
 ```{r loading_data, include=FALSE}
