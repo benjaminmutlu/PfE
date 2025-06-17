@@ -234,6 +234,6 @@ ggplot(combo_df, aes(x = Year)) +
                  colourPalette = c("green", "yellow", "red"),
                  mapRegion = "Europe")
                 
-  -
+  
                
                
