@@ -8,11 +8,11 @@ output: pdf_document
 # Set-up your environment
 
 ```{r package_install, include=FALSE}
-install.packages("tidyverse")
-install.packages("readxl")
-install.packages("rworldmap")
-install.packages("dplyr") 
-install.packages("ggplot2")
+#install.packages("tidyverse")
+#install.packages("readxl")
+#install.packages("rworldmap")
+#install.packages("dplyr") 
+#install.packages("ggplot2")
 
 ```
 
@@ -28,7 +28,6 @@ require(ggplot2)
 # Title Page
 
 Chris van Weerdenburg, Arsema Tewelde, Alan Peralta Camacho, Benjamin Mutlu, Cihan Öztürk, Israa Shidai, Jeremey Li
-
 
 Include the tutorial group number
 
@@ -50,8 +49,7 @@ Include the following:
 
 ## 2.1 Load in the data
 
-
-```{r loading_data}
+```{r loading_data, include=FALSE}
 GDP_df <- read_xlsx(path = "tec00115_page_spreadsheet.xlsx", "Sheet 1") 
 Unemploymentlang <- read_xlsx(path = "lfsa_ugad$defaultview_spreadsheet.xlsx", "Sheet 1")
 unemp_men <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 6")
@@ -64,7 +62,8 @@ midwest is an example dataset included in the tidyverse package
 ## 2.2 Provide a short summary of the dataset(s)
 
 ```{r echo=TRUE}
-head(GDP_df)
+head(GDP_df[,(1:3)], n = 5)
+head(Unemploymentlang[,(1:3)], n = 5)
 ```
 
 In this case we see 28 variables, but we miss some information on what units they are in. We also don't know anything about the year/moment in which this data has been captured.
@@ -97,7 +96,7 @@ colnames(Unemploymentlang)[2:11] <- as.character(2015:2024)
 ```
 
 ```{r show_data, echo=TRUE}
-head(Unemploymentlang, n = 20)
+head(Unemploymentlang, n = 3)
 ```
 
 ```{r data_cleaning_GDP, include=FALSE}
@@ -111,7 +110,7 @@ GDP_df <- GDP_df[-c(1,2,3),]
 ```
 
 ```{r show_data_GDP, echo=TRUE}
-head(GDP_df, n = 20)
+head(GDP_df, n = 3)
 
 ```
 
@@ -125,7 +124,7 @@ unemp_men[, 2:11] <- lapply(unemp_men[, 2:11], function(x) as.numeric(as.charact
 ```
 
 ```{r show data unemp_men}
-head(unemp_men, n = 20)
+head(unemp_men, n = 3)
 ```
 
 ```{r data_cleaning_unemp_women, include=FALSE}
@@ -137,7 +136,7 @@ unemp_women[, 2:11] <- lapply(unemp_women[, 2:11], function(x) as.numeric(as.cha
 ```
 
 ```{r show data unemp_women}
-head(unemp_women, n = 20)
+head(unemp_women, n = 3)
 ```
 
 Please use a separate 'R block' of code for each type of cleaning. So, e.g. one for missing values, a new one for removing unnecessary variables etc.
@@ -156,7 +155,7 @@ Unemploymentlang$avg_men <- unemp_men$avg_men
 ```
 
 ```{r show data}
-head(Unemploymentlang[, c(1, 12, 13)], n = 10)
+head(Unemploymentlang[, c(1, 12, 13)], n = 5)
 
 ```
 
@@ -170,23 +169,77 @@ GDP_df <- GDP_df %>%
     GDP_after_covid  = round((prod(1 + c_across(`2020`:`2024`) / 100, na.rm = TRUE) - 1) * 100, 2)
   ) %>%
   ungroup()
+
+gdp_growth <- GDP_df %>%
+  select(all_of(as.character(2013:2024)))
+avg_growth_per_year <- colMeans(gdp_growth, na.rm = TRUE) / 100  # omzetting naar factor
+growth_df <- data.frame(
+  Year = 2013:2024,
+  GrowthRate = avg_growth_per_year
+)
+
+growth_df <- growth_df %>%
+  mutate(
+    TotalGDP = cumprod(1 + GrowthRate) * 100  # basisjaar = 100
+  )
+
 ```
 
 ```{r show data GDP}
-
-head(GDP_df, 10)[ , c(1, 14, 15)]
+head(GDP_df, 5)[ , c(1, 14, 15)]
 ```
 
 ## 3.3 Visualize temporal variation
 
-```{r}
+```{r echo=FALSE}
+
+ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
+  geom_line(color = "blue", size = 1) +
+  geom_point(color = "blue") +
+  geom_vline(xintercept = 2020, color = "red", linetype = "dashed", size = 1) +
+  scale_x_continuous(breaks = 2013:2024) +  # elk jaar tonen
+  labs(
+    title = "Cumulative EU GDP Growth (2013–2024)",
+    subtitle = "Base year = 100, ",
+    x = "Year",
+    y = "Cumulative GDP Index"
+  ) +
+  theme_minimal()
 
 ```
 
 ## 3.4 Visualize spatial variation
 
-```{r visualise_map}
-
+```{r visualise_map, echo=FALSE}
+              
+ # Bereken gemiddelde werkloosheid per land (2015–2024)
+  unemp_map <- Unemploymentlang %>%
+  mutate(across(`2015`:`2024`, ~as.numeric(as.character(.)))) %>%
+  mutate(avg_unemp = rowMeans(select(., `2015`:`2024`), na.rm = TRUE)) %>%
+  select(Country = 1, avg_unemp)
+  
+  # Corrigeer landnamen
+  unemp_map$Country[unemp_map$Country == "Czechia"] <- "Czech Rep."
+  unemp_map$Country[unemp_map$Country == "Bosnia and Herzegovina"] <- "Bosnia and Herz."
+  unemp_map$Country[unemp_map$Country == "North Macedonia"] <- "Macedonia"
+  unemp_map$Country[unemp_map$Country == "Türkiye"] <- "Turkey"
+               
+ # Koppel de data aan de wereldkaart
+  mapped_data <- joinCountryData2Map(unemp_map,
+                                     joinCode = "NAME",
+                                     nameJoinColumn = "Country")
+               
+ # Maak de kaart met focus op Europa
+  mapCountryData(mapped_data,
+                 nameColumnToPlot = "avg_unemp",
+                 catMethod = "quantiles",
+                 numCats = 3,
+                 mapTitle = "Average Unemployment in Europe (2015–2024)\nGreen = Low, Yellow = Medium, Red = High",
+                 colourPalette = c("green", "yellow", "red"),
+                 mapRegion = "Europe")
+                
+  
+               
 ```
 
 Here you provide a description of why the plot above is relevant to your specific social problem.
@@ -195,20 +248,39 @@ Here you provide a description of why the plot above is relevant to your specifi
 
 What is the poverty rate by state?
 
-```{r visualise_subpopulations}
-dataset$inmetro <- dataset$inmetro %>% as.factor()
-# Boxplot of poverty rate by state using the 'midwest' dataset
-ggplot(dataset, aes(x = inmetro, y = percadultpoverty)) +
-  geom_boxplot() +
-  labs(
-    title = "Distribution of Poverty Rates by Metropolitan status (Midwest counties)",
-    x = "Metropolitan Area",
-    y = "Poverty Rate of Adults (%)"
+```{r visualise_subpopulations, echo=FALSE}
+# Pivot both datasets to long form and add a Gender column
+men_long <- unemp_men %>%
+  select(Country = 1, `2015`:`2024`) %>%
+  pivot_longer(`2015`:`2024`, names_to = "Year", values_to = "Unemployment") %>%
+  mutate(Gender = "Men")
+
+women_long <- unemp_women %>%
+  select(Country = 1, `2015`:`2024`) %>%
+  pivot_longer(`2015`:`2024`, names_to = "Year", values_to = "Unemployment") %>%
+  mutate(Gender = "Women")
+
+# Combine and factor Year
+unemp_gender <- bind_rows(men_long, women_long) %>%
+  mutate(Year = factor(Year, levels = as.character(2015:2024)))
+
+# Plot the boxplot with a shorter y–axis
+ggplot(unemp_gender, aes(x = Year, y = Unemployment, fill = Gender)) +
+  geom_boxplot(
+    position      = position_dodge(width = 0.8),
+    outlier.shape = NA
   ) +
-  theme_minimal() +
-  theme(
-    legend.position = "right"
-  )
+  scale_y_continuous(
+    limits = c(0, 30),         # set the lower & upper bounds
+    expand = expansion(0, 0)   # remove padding at axis ends
+  ) +
+  labs(
+    title = "Unemployment Rates: Men vs Women (EU Countries, 2015–2024)",
+    x     = "Year",
+    y     = "Unemployment (%)",
+    fill  = "Gender"
+  ) +
+  theme_minimal()
 ```
 
 Here you provide a description of why the plot above is relevant to your specific social problem.
@@ -217,8 +289,64 @@ Here you provide a description of why the plot above is relevant to your specifi
 
 Analyze the relationship between two variables.
 
-```{r analysis}
+```{r analysis, echo=FALSE}
+# ///Temporal Variation Plot/EU Economic Development: GDP Index and Average Unemployment (2015–2024)///
+# 📊 1. Maak je samengestelde GDP-index klaar (2015–2024)
+gdp_growth <- GDP_df %>%
+  select(all_of(as.character(2015:2024)))
 
+avg_growth_per_year <- colMeans(gdp_growth, na.rm = TRUE) / 100
+
+growth_df <- data.frame(
+  Year = 2015:2024,
+  GrowthRate = avg_growth_per_year
+) %>%
+  mutate(TotalGDP = cumprod(1 + GrowthRate) * 100)
+
+# 📊 2. Maak gemiddelde werkloosheid klaar (2015–2024)
+unemp_df <- Unemploymentlang %>%
+  summarise(across(all_of(as.character(2015:2024)), ~mean(as.numeric(.), na.rm = TRUE))) %>%
+  pivot_longer(cols = everything(), names_to = "Year", values_to = "Unemployment") %>%
+  mutate(Year = as.integer(Year))
+
+# 🔗 3. Combineer de twee datasets
+combo_df <- left_join(growth_df, unemp_df, by = "Year")
+
+# 🎨 4. Plot met dubbele y-as en mooie styling
+
+ggplot(combo_df, aes(x = Year)) +
+  # Blauwe GDP-lijn (links)
+  geom_line(aes(y = TotalGDP), color = "#0072B2", size = 1.3) +
+  geom_point(aes(y = TotalGDP), color = "#0072B2", size = 2) +
+  
+  # Oranje werkloosheidslijn (rechts, herschaald)
+  geom_line(aes(y = Unemployment / 7.5), color = "#E69F00", size = 1.3) +
+  geom_point(aes(y = Unemployment / 7.5), color = "#E69F00", size = 2) +
+  
+  # Y-assen
+  scale_y_continuous(
+    limits = c(0, 135),
+    name = "Cumulative GDP Index (Base year = 100)",
+    sec.axis = sec_axis(~.*7.5, name = "Average Unemployment (in thousands)", breaks = seq(0, 1000, 250))
+  ) +
+  
+  # X-as per jaar tonen
+  scale_x_continuous(breaks = 2015:2024) +
+  
+  # Titel & opmaak
+  labs(
+    title = "EU GDP Growth vs. Average Unemployment (2015–2024)",
+    subtitle = "Left: GDP Index (blue), Right: Avg. Unemployment (orange)",
+    x = "Year"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    axis.title.y.left = element_text(color = "#0072B2", face = "bold"),
+    axis.title.y.right = element_text(color = "#E69F00", face = "bold"),
+    axis.text.y.left = element_text(color = "#0072B2"),
+    axis.text.y.right = element_text(color = "#E69F00")
+  )
 ```
 
 Here you provide a description of why the plot above is relevant to your specific social problem.
@@ -235,16 +363,6 @@ Provide the link to your PUBLIC repository here: ...
 
 ## 5.2 Reference list
 
-
 Use APA referencing throughout your document.
 
-
-
-
-
-
-
-
-
-
-Eurostat. (n.d.). Unemployment by sex and age – monthly data [Data set]. European Commission. https://ec.europa.eu/eurostat/databrowser/view/lfsa_ugad/default/table?lang=en
+Eurostat. (n.d.). Unemployment by sex and age – monthly data [Data set]. European Commission. <https://ec.europa.eu/eurostat/databrowser/view/lfsa_ugad/default/table?lang=en>
