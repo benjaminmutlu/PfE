@@ -173,7 +173,11 @@ Please use a separate 'R block' of code for each type of cleaning. So, e.g. one 
 
 ## 3.2 Generate necessary variables
 
-Variable 1
+In this section, we generate and explain two new variables that are useful for our analysis of unemployment and GDP growth trends in Europe.
+
+Variable 1: Average Unemployment by Gender
+
+To compare long-term unemployment trends across genders and countries, we calculate the average unemployment rate for men and women over a 10-year period.
 
 ```{r gen_var1}
 unemp_men$avg_men <- rowMeans(unemp_men[, 2:11], na.rm = TRUE)
@@ -184,12 +188,20 @@ Unemploymentlang$avg_men <- unemp_men$avg_men
 
 ```
 
+We used the unemp_men and unemp_women data frames, which contain annual unemployment rates from 2013 to 2022, sourced from Eurostat (2024). The rowMeans() function computes the average rate per country. The result is stored in the Unemploymentlang data frame for easier visualization.
+
+These new variables are useful because they allow us to summarize a decade of data into a single value per gender, enabling straightforward comparison across countries. This helps highlight gender disparities and identify which European countries have the largest gaps in unemployment.
+
 ```{r show data}
 head(Unemploymentlang[, c(1, 12, 13)], n = 5)
 
 ```
 
-Variable 2
+We will use these variables to create a geographical plot that visualizes average unemployment rates across European countries from 2015 to 2024, using color coding to indicate the severity of unemployment. This visualization will help us analyze regional unemployment patterns and identify countries with relatively higher or lower unemployment, as well as explore potential gender-based disparities.
+
+Variable 2: Cumulative GDP Growth
+
+We also create variables to assess cumulative GDP growth before and after the COVID-19 pandemic.
 
 ```{r gen_var2}
 GDP_df <- GDP_df %>%
@@ -215,9 +227,20 @@ growth_df <- growth_df %>%
 
 ```
 
+We used the GDP_df data, which contains annual GDP growth rates from 2015 to 2024. Using c_across() and prod() inside mutate(), we calculate the compounded GDP growth rate for two periods:
+
+-   Pre-COVID: 2015–2019
+-   Post-COVID: 2020–2024
+
+This transformation is informative because it helps assess how economic performance shifted due to the pandemic. By comparing these two variables, we can identify which countries experienced economic resilience and which struggled to recover.
+
 ```{r show data GDP}
 head(GDP_df, 5)[ , c(1, 14, 15)]
 ```
+
+These variables provide a basis for analyzing and comparing GDP performance across countries before and after the pandemic. This allows us to assess the relative economic resilience and recovery of different European countries, and identify which economies grew more strongly or faced longer-term setbacks due to COVID-19.
+
+We visualize the average cumulative GDP growth across EU countries from 2013 to 2024 in a line chart, setting the base year to 100. The red dashed line at 2020 highlights the start of the COVID-19 pandemic, allowing us to visually compare pre- and post-pandemic trends.
 
 ## 3.3 Visualize temporal variation
 
