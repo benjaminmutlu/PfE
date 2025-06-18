@@ -1,51 +1,41 @@
-# Load necessary libraries
-
-install.packages("readxl")
-library(readxl) 
-install.packages("dplyr")
-library(dplyr)
-install.packages("tidyr")
-library(tidyr)
-install.packages("readr")
-library(readr)
-
-# Load all data from GitHub
-
-GDP_df <- read_xlsx(path = "tec00115_page_spreadsheet.xlsx", "Sheet 1") 
-Unemploymentlang <- read_xlsx(path = "lfsa_ugad$defaultview_spreadsheet.xlsx", "Sheet 1") 
+GDP_df <- GDP_df %>%
+  rowwise() %>%
+  mutate(
+    GDP_growth_total = round((prod(1 + c_across(`2015`:`2024`) / 100, na.rm = TRUE) - 1) * 100, 2)
+  ) %>%
+  ungroup()
 
 
-# Clean data Unemployment 
 
-Unemploymentlang <- Unemploymentlang[12:49, ]
-Unemploymentlang <- Unemploymentlang[, -c(3, 5, 7, 9, 11, 13, 15, 17, 19, 21)]
-rownames(Unemploymentlang) <- NULL
-Unemploymentlang <- Unemploymentlang[-c(1, 2), ]
 
-# Clean data GDP
-
-GDP_df <- GDP_df[10:52, ]
-rownames(GDP_df) <- NULL
-GDP_df <- GDP_df[, colSums(!is.na(GDP_df)) > 0]
-GDP_df <- GDP_df[, -c(5, 12, 14, 16, 18)]
-colnames(GDP_df)[2:13] <- as.character(2013:2024)
-GDP_df <- GDP_df[-c(1,2,3), ]
-
-# add variables in GDP_df (GDP_before_covid and GDP_after_covid)
+# NEW BOXPLOT 
+#make groups 
+breaks <- quantile(GDP_df$GDP_growth_total,
+                   probs = c(0, 1/3, 2/3, 1),
+                   na.rm = TRUE)
 
 GDP_df <- GDP_df %>%
   mutate(
-    across(`2015`:`2024`, ~ na_if(., ":"))
-  ) %>%
-  mutate(
-    across(`2015`:`2024`, ~ parse_number(as.character(.)))
-  ) %>%
-  rowwise() %>%
-  mutate(
-    GDP_before_covid = round((prod(1 + c_across(`2015`:`2019`)/100, na.rm = TRUE) - 1) * 100, 2),
-    GDP_after_covid  = round((prod(1 + c_across(`2020`:`2024`)/100, na.rm = TRUE) - 1) * 100, 2)
-  ) %>%
-  ungroup()
+    EconClass = cut(
+      GDP_growth_total,
+      breaks = breaks,
+      labels = c("Low growth", "Middle growth", "High growth"),
+      include.lowest = TRUE
+    )
+  )
+
+colnames(GDP_df)[1]             <- "Country"
+colnames(Unemploymentlang)[1]   <- "Country"
+
+combined_dfx <- inner_join(
+  GDP_df,
+  Unemploymentlang,
+  by = "Country"
+)
+
+new_df <- combined_dfx %>%
+  select(1, 16,17)
+
 
 
 
