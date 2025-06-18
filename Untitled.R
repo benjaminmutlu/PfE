@@ -19,45 +19,6 @@ View(Unemploymentlang)
 unemp_men <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 6")
 unemp_women <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 11")
 
-# Clean data Total_Work_population
-Total_Work_population <- Total_Work_population[13:39, ]
-Total_Work_population <- Total_Work_population[, -c(2:41)]
-Total_Work_population <- Total_Work_population[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
-rownames(Total_Work_population) <- NULL
-colnames(Total_Work_population)[2:11] <- as.character(2015:2024)
-Total_Work_population[, 2:11] <- lapply(Total_Work_population[, 2:11], function(x) as.numeric(as.character(x)))
-
-# nieuwe data set werkloosheid in procenten 
-
-unemployment_percent <- Unemploymentlang
-
-unemployment_percent[ , 2:11] <- (Unemploymentlang[ , 2:11] / Total_Work_population[ , 2:11]) * 100
-
-colnames(Total_Work_population)[1]             <- "Country"
-colnames(Unemploymentlang)[1]   <- "Country"
-merged_df <- inner_join(Total_Work_population, Unemploymentlang, by = "Country")
-
-
-years <- 2015:2024
-
-# Begin met alleen de landnamen
-unemployment_percent_df <- merged_df["Country"]
-
-# Bereken per jaar het werkloosheidspercentage
-for (year in years) {
-  pop_col <- paste0(year, ".x")     # kolomnaam voor bevolking
-  unemp_col <- paste0(year, ".y")   # kolomnaam voor werkloosheid
-  perc_col <- paste0(year, "_percent")  # nieuwe kolomnaam
-  
-  # Berekening: werkloosheid / bevolking * 100
-  unemployment_percent_df[[perc_col]] <- as.numeric(merged_df[[unemp_col]]) / as.numeric(merged_df[[pop_col]]) * 100
-
-}
-
-unemployment_percent_df$avg_unemp_percent <- rowMeans(unemployment_percent_df[, grep("_percent$", names(unemployment_percent_df))], na.rm = TRUE)
-unemployment_percent_df$avg_unemp_percent <- round(unemployment_percent_df$avg_unemp_percent, 1)
-
-
 # clean data unemp_women
 unemp_women <- unemp_women[14:49, ]
 unemp_women <- unemp_women[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
@@ -116,6 +77,57 @@ growth_df <- data.frame(
 growth_df <- growth_df %>%
   mutate(
     TotalGDP = cumprod(1 + GrowthRate) * 100  # basisjaar = 100
+  )
+
+
+
+# Clean data Total_Work_population
+Total_Work_population <- Total_Work_population[13:39, ]
+Total_Work_population <- Total_Work_population[, -c(2:41)]
+Total_Work_population <- Total_Work_population[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
+rownames(Total_Work_population) <- NULL
+colnames(Total_Work_population)[2:11] <- as.character(2015:2024)
+Total_Work_population[, 2:11] <- lapply(Total_Work_population[, 2:11], function(x) as.numeric(as.character(x)))
+
+# nieuwe data set werkloosheid in procenten 
+
+colnames(Total_Work_population)[1]  <- "Country"
+colnames(Unemploymentlang)[1]   <- "Country"
+
+merged_df <- inner_join(Total_Work_population, Unemploymentlang, by = "Country")
+
+years <- 2015:2024
+
+# Turn all “.x” and “.y” year‑columns into numeric
+num_x <- paste0(years, ".x")
+num_y <- paste0(years, ".y")
+
+merged_df[ num_x ] <- lapply(merged_df[ num_x ], as.numeric)
+merged_df[ num_y ] <- lapply(merged_df[ num_y ], as.numeric)
+
+
+# 1) Start met alleen de landnaam-kolom
+unemployment_percent_df <- merged_df["Country"]
+
+# 2) Loop wél de berekening per jaar áán binnen de loop
+for (year in years) {
+  pop_col  <- paste0(year, ".x")      # bv. "2015.x"
+  unemp_col<- paste0(year, ".y")      # bv. "2015.y"
+  perc_col <- paste0(year, "_percent")# bv. "2015_percent"
+  
+  # de berekening en toewijzing *in* de loop
+  unemployment_percent_df[[perc_col]] <-
+    merged_df[[unemp_col]] / merged_df[[pop_col]] * 100
+}
+
+# 3) Gemiddelde over alle jaar‑percentages
+unemployment_percent_df$avg_unemp_percent <-
+  round(
+    rowMeans(
+      unemployment_percent_df[ , grep("_percent$", names(unemployment_percent_df))],
+      na.rm = TRUE
+    ),
+    1
   )
 
 
@@ -260,5 +272,5 @@ ggplot(combo_df, aes(x = Year)) +
                  mapRegion = "Europe")
                 
   
-               
-               
+  
+  
