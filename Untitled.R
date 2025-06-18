@@ -270,7 +270,9 @@ ggplot(combo_df, aes(x = Year)) +
                  mapTitle = "Average Unemployment in Europe (2015–2024)\nGreen = Low, Yellow = Medium, Red = High",
                  colourPalette = c("green", "yellow", "red"),
                  mapRegion = "Europe")
-                
+               
+  
+   
   
   
   
