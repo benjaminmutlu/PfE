@@ -29,9 +29,9 @@ require(ggplot2)
 
 Chris van Weerdenburg, Arsema Tewelde, Alan Peralta Camacho, Benjamin Mutlu, Cihan Öztürk, Israa Shidai, Jeremey Li
 
-Include the tutorial group number
+Tutorial group number: 3
 
-Include your tutorial lecturer's name
+Tutorial lecturer: Jack Fitzgerald
 
 # Part 1 - Identify a Social Problem
 
@@ -75,7 +75,7 @@ These datasets have some differences but also similarities.
 
 These two datasets were a perfect match for our topic because they gave us an in depth look into the correlation between the GDP growth rate and Unemployment rates but also the unemployment rates and sex, age and duration of unemployment these datasets were crucial for us to conclude whether Covid-19 had an impact on unemployment rates.
 
-The datasets we used were quite complete however some countries the data was not sourced for example: Bosnia and Herzegovina and Lichtenstein. Other than that were there no complaints about the datasets, and were they very explicit.
+The datasets we used were quite complete however some countries the data was not sourced for example: Bosnia and Herzegovina and Lichtenstein. However we did add in a new data set because the other data sets did not give as a good insight about the percentage of the population being unemployed. It just gave us the amount of people that are / were unemployed. This was a slight hiccup since for example Germany has a bigger population than Norway. Other than that were there no complaints about the datasets, and were they very explicit.
 
 ## 2.1 Load in the data
 
@@ -419,3 +419,5 @@ Provide the link to your PUBLIC repository here: ...
 Use APA referencing throughout your document.
 
 Eurostat. (n.d.). Unemployment by sex and age – monthly data [Data set]. European Commission. <https://ec.europa.eu/eurostat/databrowser/view/lfsa_ugad/default/table?lang=en>
+
+Eurostat. (2024). Real GDP growth rate - volume (tec00115). European Commission. <https://ec.europa.eu/eurostat/databrowser/view/tec00115/default/table?lang=en>
