@@ -245,33 +245,38 @@ ggplot(combo_df, aes(x = Year)) +
     #// European Unemployment Map (2015–2024) ////
 
                
- # Bereken gemiddelde werkloosheid per land (2015–2024)
-  unemp_map <- Unemploymentlang %>%
-  mutate(across(`2015`:`2024`, ~as.numeric(as.character(.)))) %>%
-  mutate(avg_unemp = rowMeans(select(., `2015`:`2024`), na.rm = TRUE)) %>%
-  select(Country = 1, avg_unemp)
   
-  # Corrigeer landnamen
-  unemp_map$Country[unemp_map$Country == "Czechia"] <- "Czech Rep."
-  unemp_map$Country[unemp_map$Country == "Bosnia and Herzegovina"] <- "Bosnia and Herz."
-  unemp_map$Country[unemp_map$Country == "North Macedonia"] <- "Macedonia"
-  unemp_map$Country[unemp_map$Country == "Türkiye"] <- "Turkey"
-               
- # Koppel de data aan de wereldkaart
-  mapped_data <- joinCountryData2Map(unemp_map,
-                                     joinCode = "NAME",
-                                     nameJoinColumn = "Country")
-               
- # Maak de kaart met focus op Europa
-  mapCountryData(mapped_data,
-                 nameColumnToPlot = "avg_unemp",
-                 catMethod = "quantiles",
-                 numCats = 3,
-                 mapTitle = "Average Unemployment in Europe (2015–2024)\nGreen = Low, Yellow = Medium, Red = High",
-                 colourPalette = c("green", "yellow", "red"),
-                 mapRegion = "Europe")
-               
+  # Stap 1: Zorg dat de landnaamkolom goed heet
+  colnames(unemployment_percent_df)[1] <- "Country"
   
+  # Stap 2: Koppel je data aan de wereldkaart
+  mapped_data_percent <- joinCountryData2Map(unemployment_percent_df,
+                                             joinCode = "NAME",
+                                             nameJoinColumn = "Country")
+  
+  # Stap 3: Maak de kaart op basis van procentuele werkloosheid
+  mapCountryData(
+    mapped_data_percent,
+    nameColumnToPlot = "avg_unemp_percent",
+    catMethod = "quantiles",
+    numCats = 3,
+    mapTitle = "Average Unemployment in Europe (2015–2024)",
+    colourPalette = c("green", "yellow", "red"),
+    mapRegion = "Europe",
+    addLegend = FALSE  # hide default color bar
+  )
+  
+  legend(
+    "topleft",
+    legend = c("Low", "Medium", "High"),
+    fill = c("green", "yellow", "red"),
+    title = "Unemployment level",
+    cex = 0.8                     
+               
+  )
+  
+  
+
    
   
   
