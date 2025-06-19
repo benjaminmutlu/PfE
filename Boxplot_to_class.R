@@ -59,3 +59,39 @@ Boxplot_unemployment_to_economic_class <- ggplot(long_df, aes(x = factor(year), 
   theme_minimal()
 
 print(Boxplot_unemployment_to_economic_class)
+
+
+
+# Pivot both datasets to long form and add a Gender column
+men_long <- unemp_men %>%
+  select(Country = 1, `2015`:`2024`) %>%
+  pivot_longer(`2015`:`2024`, names_to = "Year", values_to = "Unemployment") %>%
+  mutate(Gender = "Men")
+
+women_long <- unemp_women %>%
+  select(Country = 1, `2015`:`2024`) %>%
+  pivot_longer(`2015`:`2024`, names_to = "Year", values_to = "Unemployment") %>%
+  mutate(Gender = "Women")
+
+# Combine and factor Year
+unemp_gender <- bind_rows(men_long, women_long) %>%
+  mutate(Year = factor(Year, levels = as.character(2015:2024)))
+
+# Plot the boxplot with a shorter y–axis
+ggplot(unemp_gender, aes(x = Year, y = Unemployment, fill = Gender)) +
+  geom_boxplot(
+    position      = position_dodge(width = 0.8),
+    outlier.shape = NA
+  ) +
+  scale_y_continuous(
+    limits = c(0, 30),         # set the lower & upper bounds
+    expand = expansion(0, 0)   # remove padding at axis ends
+  ) +
+  labs(
+    title = "Unemployment Rates: Men vs Women (EU Countries, 2015–2024)",
+    x     = "Year",
+    y     = "Unemployment (%)",
+    fill  = "Gender"
+  ) +
+  theme_minimal()
+
