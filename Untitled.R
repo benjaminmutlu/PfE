@@ -137,10 +137,10 @@ ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
   geom_line(color = "blue", size = 1) +
   geom_point(color = "blue") +
   geom_vline(xintercept = 2020, color = "red", linetype = "dashed", size = 1) +
-  scale_x_continuous(breaks = 2013:2024) +  # elk jaar tonen
+  scale_x_continuous(breaks = 2015:2024) +  # elk jaar tonen
   labs(
-    title = "Cumulative EU GDP Growth (2013–2024)",
-    subtitle = "Base year = 100, ",
+    title = "Cumulative EU GDP Growth (2015–2024)",
+    subtitle = "Red line marks the start of COVID-19 (2020), base year = 100",
     x = "Year",
     y = "Cumulative GDP Index"
   ) +
