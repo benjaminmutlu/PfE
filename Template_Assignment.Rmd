@@ -35,15 +35,30 @@ Tutorial lecturer: Jack Fitzgerald
 
 # Part 1 - Identify a Social Problem
 
-Use APA referencing throughout your document.
-
 ## 1.1 Describe the Social Problem
 
 Include the following:
 
 -   Why is this relevant?
 
--   ...
+-   ....
+
+**Unemployment in the European Union (EU)** is a significant social issue that affects millions of individuals, families, and communities across all countries within Europe. It refers to the condition where people who are willing and able to work are unable to find suitable employment. This issue impacts not only those directly affected by this dilemma but also the broader economy and social cohesion within Europe. This is relevant because;
+
+\
+High unemployment rates can lead to decreased spending's of consumers, lower tax revenues, but also increased government spending on social welfare programs. This slows down the economic growth and can also hinder post-crisis recovery efforts for example COVID-19.
+
+\
+It also causes long-term unemployment can lead to poverty, social isolation, and reduced access to healthcare and education. It often disproportionately affects young people, older workers, migrants, and those with lower educational qualifications, contributing to widening social inequality.
+
+\
+Which can also often lead to youth unemployment is particularly pressing in many EU countries, with some regions experiencing rates above 30%. This delays independence, contributes to brain drain (migration of skilled youth), and weakens future labor market prospects.
+
+\
+And could also be the cause of poor mental health since unemployment is closely linked to poor mental health outcomes such as depression, anxiety, and a loss of purpose or identity. The longer someone remains unemployed, the more profound the psychological effects.
+
+\
+Persistent unemployment can erode trust in institutions, fuel populism and extremism, and lead to social unrest. Citizens may feel disillusioned with governments and the EU itself, challenging the union’s stability and unity.
 
 # Part 2 - Data Sourcing
 
@@ -53,27 +68,35 @@ We have the following datasets:
 
 -   **Real GDP growth rate - volume (Eurostat)**
 
+-   **Population, aged 15 - 74 - EU labour force survey (Eurostat)**
+
 These datasets are published and sourced by Eurostat. Eurostat is the statistical office of the European Union. They source their data through the ESS which is the European Statistical System. These datasets are also collected by each country's own National Statistical Institute for example the data Eurostat collects from the Netherlands is from the CBS (Centraal Bureau Statistiek). This data collection is done according to established EU regulations and standards, ensuring a degree of harmonization across the EU. The national authorities then transmit the verified and analyzed data to Eurostat.
 
 These datasets have some differences but also similarities.
 
 **Key differences:**
 
--   GDP per capita relates to overall economic performances, while youth unemployment reflects specific labor market outcomes.
+-   GDP per capita relates to overall economic performances, while youth unemployment reflects specific labor market outcomes and the labour force refers to the amount of people between age 15 and 74 who are either employed or unemployed.
 
--   GDP includes the whole population; youth unemployment only concerns young people who are economically active.
+-   GDP includes the whole population; youth unemployment only concerns young people who are economically active and the labour force includes people between the ages 15 and 74.
 
--   GDP is measured in economic value (adjusted for PPS); youth unemployment is a rate (percentage).
+-   GDP is measured in economic value (adjusted for PPS); youth unemployment is a rate (percentage); the labour force is measured in amount of people.
 
 **Complementary:**
 
 -   A country may have high GDP per capita but also high youth unemployment, indicating that economic gains are not evenly distributed or accessible.
 
--   Using both datasets together provides a more comprehensive view of socio-economic well-being, economic performance (GDP) and inclusiveness or opportunity (youth employment).
+-   Using our datasets together provides a more comprehensive view of socio-economic well-being, economic performance (GDP) and inclusiveness or opportunity (youth employment).
 
 -   This combination can be especially useful for analyzing whether economic growth is benefiting younger generations.
 
-These two datasets were a perfect match for our topic because they gave us an in depth look into the correlation between the GDP growth rate and Unemployment rates but also the unemployment rates and sex, age and duration of unemployment these datasets were crucial for us to conclude whether Covid-19 had an impact on unemployment rates.
+-   Usage of these different datasets gives us a broad insight and amount of data that we could use each and every aspect of the data that we sourced, in order to create clear and explicit plots.
+
+These two datasets were a perfect match for our topic because they gave us an in depth look into the correlation between the GDP growth rate and Unemployment rates but also the unemployment rates and sex, age and duration of unemployment these datasets were crucial for us to conclude whether Covid-19 had an impact on unemployment rates. We added in another dataset which provided the data for the total population aged from 15 to 74 usually residing in Member States in private households, except for persons living in collective or institutional households (e.g. hospitals, residential homes, prisons, military barracks, religious institutions, etc.). With use of this data we could calculate the ratio of population and amount of unemployed. Since with the datasets we had used it did not provide this information. That made it quite hard to properly understand how many people were unemployed since some countries have much bigger populations than others.
+
+[Metadata](https://ec.europa.eu/eurostat/cache/metadata/en/lfsa_esms.htm)Dataset informationAdd to ‘My datasets’
+
+## Selection
 
 The datasets we used were quite complete however some countries the data was not sourced for example: Bosnia and Herzegovina and Lichtenstein. However we did add in a new data set because the other data sets did not give as a good insight about the percentage of the population being unemployed. It just gave us the amount of people that are / were unemployed. This was a slight hiccup since for example Germany has a bigger population than Norway. Other than that were there no complaints about the datasets, and were they very explicit.
 
@@ -416,8 +439,14 @@ Provide the link to your PUBLIC repository here: ...
 
 ## 5.2 Reference list
 
-Use APA referencing throughout your document.
+Eurostat. (n.d.). Unemployment by sex and age – monthly data [Data set]. European Commission.
 
-Eurostat. (n.d.). Unemployment by sex and age – monthly data [Data set]. European Commission. <https://ec.europa.eu/eurostat/databrowser/view/lfsa_ugad/default/table?lang=en>
+<https://ec.europa.eu/eurostat/databrowser/view/lfsa_ugad/default/table?lang=en>
 
-Eurostat. (2024). Real GDP growth rate - volume (tec00115). European Commission. <https://ec.europa.eu/eurostat/databrowser/view/tec00115/default/table?lang=en>
+Eurostat. (18/06/2025). Real GDP growth rate - volume (tec00115). European Commission.
+
+<https://ec.europa.eu/eurostat/databrowser/view/tec00115/default/table?lang=en>
+
+Eurostat. (12/06/2025). Population, aged 15-74 - EU labour force survey (tipslm16).
+
+<https://ec.europa.eu/eurostat/databrowser/view/tipslm16/default/table?lang=en>
