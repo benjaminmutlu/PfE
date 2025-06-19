@@ -15,26 +15,6 @@ library(tidyverse)
 Total_Work_population <- read_xlsx(path = "tipslm16_page_spreadsheet.xlsx", "Sheet 1") 
 GDP_df <- read_xlsx(path = "tec00115_page_spreadsheet.xlsx", "Sheet 1") 
 Unemploymentlang <- read_xlsx(path = "lfsa_ugad$defaultview_spreadsheet.xlsx", "Sheet 1")
-View(Unemploymentlang)
-unemp_men <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 6")
-unemp_women <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 11")
-
-# clean data unemp_women
-unemp_women <- unemp_women[14:49, ]
-unemp_women <- unemp_women[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
-rownames(unemp_women) <- NULL
-colnames(unemp_women)[2:11] <- as.character(2015:2024)
-unemp_women[, 2:11] <- lapply(unemp_women[, 2:11], function(x) as.numeric(as.character(x)))
-unemp_women$avg_women <- rowMeans(unemp_women[, 2:11], na.rm = TRUE)
-
-# clean data unemp_men
-unemp_men <- unemp_men[14:49, ]
-unemp_men <- unemp_men[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
-rownames(unemp_men) <- NULL
-colnames(unemp_men)[2:11] <- as.character(2015:2024)
-unemp_men[, 2:11] <- lapply(unemp_men[, 2:11], function(x) as.numeric(as.character(x)))
-unemp_men$avg_men <- rowMeans(unemp_men[, 2:11], na.rm = TRUE)
-
 
 # Clean data Unemployment 
 Unemploymentlang <- Unemploymentlang[14:49, ]
@@ -42,13 +22,7 @@ Unemploymentlang <- Unemploymentlang[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
 rownames(Unemploymentlang) <- NULL
 colnames(Unemploymentlang)[2:11] <- as.character(2015:2024)
 
-# Creating a new variable in the Unemploymentlang dataset
-Unemploymentlang$avg_women <- unemp_women$avg_women
-Unemploymentlang$avg_men <- unemp_men$avg_men
-
-
 # Clean data GDP
-
 GDP_df <- GDP_df[10:52, ]
 rownames(GDP_df) <- NULL
 GDP_df <- GDP_df[, colSums(!is.na(GDP_df)) > 0]
@@ -58,7 +32,6 @@ GDP_df[ , as.character(2013:2024)] <- lapply(GDP_df[ , as.character(2013:2024)],
 GDP_df <- GDP_df[-c(1,2,3),]
 
 # Creating a new variable in the GDP dataset
-
 GDP_df <- GDP_df %>%
   rowwise() %>%
   mutate(
@@ -79,8 +52,6 @@ growth_df <- growth_df %>%
     TotalGDP = cumprod(1 + GrowthRate) * 100  # basisjaar = 100
   )
 
-
-
 # Clean data Total_Work_population
 Total_Work_population <- Total_Work_population[13:39, ]
 Total_Work_population <- Total_Work_population[, -c(2:41)]
@@ -90,7 +61,6 @@ colnames(Total_Work_population)[2:11] <- as.character(2015:2024)
 Total_Work_population[, 2:11] <- lapply(Total_Work_population[, 2:11], function(x) as.numeric(as.character(x)))
 
 # nieuwe data set werkloosheid in procenten 
-
 colnames(Total_Work_population)[1]  <- "Country"
 colnames(Unemploymentlang)[1]   <- "Country"
 
@@ -130,9 +100,7 @@ unemployment_percent_df$avg_unemp_percent <-
     1
   )
 
-
 # //Event Analysis Plot//Plotting the GDP growth from 2013 to 2024-//////
-
 ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
   geom_line(color = "blue", size = 1) +
   geom_point(color = "blue") +
@@ -166,7 +134,6 @@ newx_df <- inner_join(
   by = "Country" 
 )
 
-
 breaks27 <- quantile(
   newx_df$GDP_growth_total,
   probs = c(0, 1/3, 2/3, 1),
@@ -183,9 +150,8 @@ newxx_df <- newx_df %>%
     )
   )
 
-
 allmerged_df <- newxx_df %>%
-  select(1,29,30,31,32,33,34,35,36,37,38,40)
+  select(1,29,30,31,32,33,34,35,36,37,38,)
 
 
 Boxplot_unemp_2024 <- ggplot(newxx_df, aes(x = EconClass, y = `2024_percent`, fill = EconClass)) +
@@ -199,7 +165,6 @@ Boxplot_unemp_2024 <- ggplot(newxx_df, aes(x = EconClass, y = `2024_percent`, fi
   theme_minimal()
 
 print(Boxplot_unemp_2024)
-
 
 # ///Temporal Variation Plot/EU Economic Development: GDP Index and Average Unemployment (2015–2024)///
 # 📊 1. Maak je samengestelde GDP-index klaar (2015–2024)
