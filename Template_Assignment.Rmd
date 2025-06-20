@@ -25,7 +25,7 @@ require(ggplot2)
 
 ```
 
-# Unemployment in Europe 
+# Unemployment in Europe
 
 Chris van Weerdenburg, Arsema Tewelde, Alan Peralta Camacho, Benjamin Mutlu, Cihan Öztürk, Israa Shidai, Jeremey Li
 
@@ -323,7 +323,7 @@ Here you provide a description of why the plot above is relevant to your specifi
 
 ## 3.5 Visualize sub-population variation
 
-What is the poverty rate by state?
+To explore how unemployment rates differ across sub-populations, we analyzed gender-based variation across European countries from 2015 to 2024. We used annual data from Eurostat (2025) to compare unemployment rates between men and women. The figure below presents boxplots for each year, showing the distribution of unemployment rates across countries, grouped by gender.
 
 ```{r visualise_subpopulations, echo=FALSE}
 # Pivot both datasets to long form and add a Gender column
@@ -360,7 +360,11 @@ ggplot(unemp_gender, aes(x = Year, y = Unemployment, fill = Gender)) +
   theme_minimal()
 ```
 
-Here you provide a description of why the plot above is relevant to your specific social problem.
+The plot shows that while men and women follow similar overall trends, women tend to exhibit a slightly wider spread and, in several years (notably 2019, 2021, 2023, and 2024), higher median unemployment rates than men. The interquartile ranges also suggest greater variability in female unemployment, especially in later years.
+
+This subgroup analysis reveals that gender disparities persist in European labor markets. The broader variation in female unemployment may reflect structural inequalities, differences in labor force participation, or sector-specific employment shocks. By quantifying this divergence, we highlight the importance of tailoring labor policies to address gender-specific challenges in the labor market.
+
+This visualization aligns closely with our project’s objective of examining unemployment and economic resilience. It emphasizes that interpreting macroeconomic indicators like unemployment in aggregate can overlook important insights. By breaking down the data by gender, we uncover disparities that are essential for informing more targeted and effective policy responses.
 
 ## 3.6 Event analysis
 
