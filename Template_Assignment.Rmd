@@ -25,7 +25,7 @@ require(ggplot2)
 
 ```
 
-# Title Page
+# Unemployment in Europe 
 
 Chris van Weerdenburg, Arsema Tewelde, Alan Peralta Camacho, Benjamin Mutlu, Cihan Öztürk, Israa Shidai, Jeremey Li
 
@@ -43,22 +43,23 @@ Include the following:
 
 -   ....
 
-**Unemployment in the European Union (EU)** is a significant social issue that affects millions of individuals, families, and communities across all countries within Europe. It refers to the condition where people who are willing and able to work are unable to find suitable employment. This issue impacts not only those directly affected by this dilemma but also the broader economy and social cohesion within Europe. This is relevant because;
+**Unemployment in the European Union (EU)** is a significant social issue that affects millions of individuals, families, and communities across all countries within Europe. It refers to the condition where people who are willing and able to work are unable to find suitable employment. This issue impacts not only those directly affected by this dilemma but also the broader economy and social cohesion within Europe. This is relevant because:
 
-\
-High unemployment rates can lead to decreased spending's of consumers, lower tax revenues, but also increased government spending on social welfare programs. This slows down the economic growth and can also hinder post-crisis recovery efforts for example COVID-19.
+High unemployment rates can lead to decreased consumer spending, lower tax revenues, and increased government spending on social welfare programs. This slows down economic growth and can also hinder post-crisis recovery efforts, for example COVID-19.
 
-\
-It also causes long-term unemployment can lead to poverty, social isolation, and reduced access to healthcare and education. It often disproportionately affects young people, older workers, migrants, and those with lower educational qualifications, contributing to widening social inequality.
+It also causes long-term unemployment, which can lead to poverty, social isolation, and reduced access to healthcare and education. It often disproportionately affects young people, older workers, migrants, and those with lower educational qualifications, contributing to widening social inequality.
 
-\
-Which can also often lead to youth unemployment is particularly pressing in many EU countries, with some regions experiencing rates above 30%. This delays independence, contributes to brain drain (migration of skilled youth), and weakens future labor market prospects.
+Youth unemployment is particularly pressing in many EU countries, with some regions experiencing rates above 30%. This delays independence, contributes to brain drain (migration of skilled youth), and weakens future labor market prospects.
 
-\
-And could also be the cause of poor mental health since unemployment is closely linked to poor mental health outcomes such as depression, anxiety, and a loss of purpose or identity. The longer someone remains unemployed, the more profound the psychological effects.
+Unemployment is closely linked to poor mental health outcomes such as depression, anxiety, and a loss of purpose or identity. The longer someone remains unemployed, the more profound the psychological effects. Many studies show that unemployment leads to depressive symptoms but also a lot of stress, because as a person you lack stability and that causes a feeling of fear.
 
-\
+Here are two important sources that highlight the serious consequences of unemployment. The first source comes from an article by the U.S. Department of Health called *Healthy People 2030*. This report states that work is one of the five social factors of health. According to this report, unemployment can actually cause physical conditions such as high blood pressure, but also psychological problems (Employment – Healthy People 2030 \| odphp.health.gov, z.d.).
+
+Another source that highlights the social effects of unemployment is a report from *ScienceDirect*, written by Pohlan. This report states that losing your job in the long term leads to a decrease in social integration, which means actively participating in social activities, and that leads to long-lasting depression (Pohlan, 2019).
+
 Persistent unemployment can erode trust in institutions, fuel populism and extremism, and lead to social unrest. Citizens may feel disillusioned with governments and the EU itself, challenging the union’s stability and unity.
+
+There have been quite a few studies on the social problem of unemployment, but there is no research that deeply analyzes the relationship between unemployment and economic growth such as GDP. This report focuses on the economic side by looking at how unemployment affects the economy, as well as the social consequences it brings.
 
 # Part 2 - Data Sourcing
 
@@ -105,8 +106,8 @@ The datasets we used were quite complete however some countries the data was not
 ```{r loading_data, include=FALSE}
 GDP_df <- read_xlsx(path = "tec00115_page_spreadsheet.xlsx", "Sheet 1") 
 Unemploymentlang <- read_xlsx(path = "lfsa_ugad$defaultview_spreadsheet.xlsx", "Sheet 1")
-Total_Work_population <- read_xlsx(path = "tipslm16_page_spreadsheet.xlsx", "Sheet 1") 
-
+unemp_men <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 6")
+unemp_women <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 11")
 
 ```
 
@@ -117,7 +118,6 @@ midwest is an example dataset included in the tidyverse package
 ```{r echo=TRUE}
 head(GDP_df[,(1:3)], n = 5)
 head(Unemploymentlang[,(1:3)], n = 5)
-head(Total_Work_population[,(1:3)], n = 5)
 ```
 
 In this case we see 28 variables, but we miss some information on what units they are in. We also don't know anything about the year/moment in which this data has been captured.
@@ -181,6 +181,18 @@ unemp_men[, 2:11] <- lapply(unemp_men[, 2:11], function(x) as.numeric(as.charact
 head(unemp_men, n = 3)
 ```
 
+```{r data_cleaning_unemp_women, include=FALSE}
+unemp_women <- unemp_women[14:49, ]
+unemp_women <- unemp_women[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
+rownames(unemp_women) <- NULL
+colnames(unemp_women)[2:11] <- as.character(2015:2024)
+unemp_women[, 2:11] <- lapply(unemp_women[, 2:11], function(x) as.numeric(as.character(x)))
+```
+
+```{r show data unemp_women}
+head(unemp_women, n = 3)
+```
+
 Please use a separate 'R block' of code for each type of cleaning. So, e.g. one for missing values, a new one for removing unnecessary variables etc.
 
 ## 3.2 Generate necessary variables
@@ -211,7 +223,7 @@ head(Unemploymentlang[, c(1, 12, 13)], n = 5)
 
 We will use these variables to create a geographical plot that visualizes average unemployment rates across European countries from 2015 to 2024, using color coding to indicate the severity of unemployment. This visualization will help us analyze regional unemployment patterns and identify countries with relatively higher or lower unemployment, as well as explore potential gender-based disparities.
 
-Variable 2: Cumulative GDP Growth **(nog opsp[litsen in 2 blokken voor en na covid)**
+Variable 2: Cumulative GDP Growth
 
 We also create variables to assess cumulative GDP growth before and after the COVID-19 pandemic.
 
@@ -254,20 +266,6 @@ These variables provide a basis for analyzing and comparing GDP performance acro
 
 We visualize the average cumulative GDP growth across EU countries from 2013 to 2024 in a line chart, setting the base year to 100. The red dashed line at 2020 highlights the start of the COVID-19 pandemic, allowing us to visually compare pre- and post-pandemic trends.
 
-```{r}
-
-
-```
-
-**Gdp total & Chris**
-
-**Growth_df(totalGDP) Chris**
-
-**Unemployment/ total population(unemployment_percent_df)\
- + avg_unemploynment_percent Arsema**
-
-**Economic class Chris**
-
 ## 3.3 Visualize temporal variation
 
 ```{r echo=FALSE}
@@ -291,7 +289,32 @@ ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
 
 ```{r visualise_map, echo=FALSE}
               
-Aanpassen nieuwe kaart
+ # Bereken gemiddelde werkloosheid per land (2015–2024)
+  unemp_map <- Unemploymentlang %>%
+  mutate(across(`2015`:`2024`, ~as.numeric(as.character(.)))) %>%
+  mutate(avg_unemp = rowMeans(select(., `2015`:`2024`), na.rm = TRUE)) %>%
+  select(Country = 1, avg_unemp)
+  
+  # Corrigeer landnamen
+  unemp_map$Country[unemp_map$Country == "Czechia"] <- "Czech Rep."
+  unemp_map$Country[unemp_map$Country == "Bosnia and Herzegovina"] <- "Bosnia and Herz."
+  unemp_map$Country[unemp_map$Country == "North Macedonia"] <- "Macedonia"
+  unemp_map$Country[unemp_map$Country == "Türkiye"] <- "Turkey"
+               
+ # Koppel de data aan de wereldkaart
+  mapped_data <- joinCountryData2Map(unemp_map,
+                                     joinCode = "NAME",
+                                     nameJoinColumn = "Country")
+               
+ # Maak de kaart met focus op Europa
+  mapCountryData(mapped_data,
+                 nameColumnToPlot = "avg_unemp",
+                 catMethod = "quantiles",
+                 numCats = 3,
+                 mapTitle = "Average Unemployment in Europe (2015–2024)\nGreen = Low, Yellow = Medium, Red = High",
+                 colourPalette = c("green", "yellow", "red"),
+                 mapRegion = "Europe")
+                
   
                
 ```
