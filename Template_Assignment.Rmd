@@ -344,18 +344,19 @@ colnames(Unemploymentlang)[1] <- "Country"
 # Merge datasets
 merged_df <- inner_join(Total_Work_population, Unemploymentlang, by = "Country")
 
-# Zorg dat kolommen numeriek zijn
+# Zet jaartallen
 years <- 2015:2024
 num_x <- paste0(years, ".x")
 num_y <- paste0(years, ".y")
 
+# Zorg dat kolommen numeriek zijn
 merged_df[num_x] <- lapply(merged_df[num_x], as.numeric)
 merged_df[num_y] <- lapply(merged_df[num_y], as.numeric)
 
-# Nieuwe dataframe voor percentages
-unemployment_percent_df <- merged_df["Country"]
+# Bereken percentage werkloosheid per jaar
+unemployment_percent_df <- merged_df %>%
+  transmute(Country = Country)
 
-# Bereken per jaar het percentage werkloosheid
 for (year in years) {
   pop_col  <- paste0(year, ".x")
   unemp_col<- paste0(year, ".y")
@@ -365,64 +366,36 @@ for (year in years) {
     merged_df[[unemp_col]] / merged_df[[pop_col]] * 100
 }
 
-# Check of alles numeriek is
-unemployment_percent_df[ , grep("_percent$", names(unemployment_percent_df))] <-
-  lapply(unemployment_percent_df[ , grep("_percent$", names(unemployment_percent_df))], as.numeric)
-
-# Bereken gemiddeld werkloosheidspercentage
+# Gemiddelde werkloosheid over de jaren
 unemployment_percent_df$avg_unemp_percent <- round(
   rowMeans(unemployment_percent_df[ , grep("_percent$", names(unemployment_percent_df))], na.rm = TRUE),
   1
 )
-```
 
+# Kaartdata koppelen
+mapped_data_percent <- joinCountryData2Map(unemployment_percent_df,
+                                           joinCode = "NAME",
+                                           nameJoinColumn = "Country")
 
-```{r visualise_map, echo=FALSE}
-        # 3) Gemiddelde over alle jaar‑percentages
-unemployment_percent_df$avg_unemp_percent <-
-  round(
-    rowMeans(
-      unemployment_percent_df[ , grep("_percent$", names(unemployment_percent_df))],
-      na.rm = TRUE
-    ),
-    1
-  )      
-  # Stap 1: Zorg dat de landnaamkolom goed heet
-  colnames(unemployment_percent_df)[1] <- "Country"
+# Plot kaart
+mapCountryData(
+  mapped_data_percent,
+  nameColumnToPlot = "avg_unemp_percent",
+  catMethod = "quantiles",
+  numCats = 3,
+  mapTitle = "Average Unemployment in Europe (2015–2024)",
+  colourPalette = c("green", "yellow", "red"),
+  mapRegion = "Europe",
+  addLegend = FALSE
+)
 
-unemployment_percent_df$avg_unemp_percent <-
-  round(
-    rowMeans(
-      unemployment_percent_df[ , grep("_percent$", names(unemployment_percent_df))],
-      na.rm = TRUE
-    ),
-    1
-  )
-
-  # Stap 2: Koppel je data aan de wereldkaart
-  mapped_data_percent <- joinCountryData2Map(unemployment_percent_df,
-                                             joinCode = "NAME",
-                                             nameJoinColumn = "Country")
-
-  # Stap 3: Maak de kaart op basis van procentuele werkloosheid
-  mapCountryData(
-    mapped_data_percent,
-    nameColumnToPlot = "avg_unemp_percent",
-    catMethod = "quantiles",
-    numCats = 3,
-    mapTitle = "Average Unemployment in Europe (2015–2024)",
-    colourPalette = c("green", "yellow", "red"),
-    mapRegion = "Europe",
-    addLegend = FALSE  # hide default color bar
-  )
-  
-  legend(
-    "topleft",
-    legend = c("Low", "Medium", "High"),
-    fill = c("green", "yellow", "red"),
-    title = "Unemployment level",
-    cex = 0.8)     
-  
+legend(
+  "topleft",
+  legend = c("Low", "Medium", "High"),
+  fill = c("green", "yellow", "red"),
+  title = "Unemployment level",
+  cex = 0.8
+)
 ```
 
 Here you provide a description of why the plot above is relevant to your specific social problem.
