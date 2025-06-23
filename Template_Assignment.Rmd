@@ -339,34 +339,35 @@ ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
 
 ```{r visualise_map, echo=FALSE}
               
- # Bereken gemiddelde werkloosheid per land (2015–2024)
-  unemp_map <- Unemploymentlang %>%
-  mutate(across(`2015`:`2024`, ~as.numeric(as.character(.)))) %>%
-  mutate(avg_unemp = rowMeans(select(., `2015`:`2024`), na.rm = TRUE)) %>%
-  select(Country = 1, avg_unemp)
+
+
+  # Stap 1: Zorg dat de landnaamkolom goed heet
+  colnames(unemployment_percent_df)[1] <- "Country"
   
-  # Corrigeer landnamen
-  unemp_map$Country[unemp_map$Country == "Czechia"] <- "Czech Rep."
-  unemp_map$Country[unemp_map$Country == "Bosnia and Herzegovina"] <- "Bosnia and Herz."
-  unemp_map$Country[unemp_map$Country == "North Macedonia"] <- "Macedonia"
-  unemp_map$Country[unemp_map$Country == "Türkiye"] <- "Turkey"
-               
- # Koppel de data aan de wereldkaart
-  mapped_data <- joinCountryData2Map(unemp_map,
-                                     joinCode = "NAME",
-                                     nameJoinColumn = "Country")
-               
- # Maak de kaart met focus op Europa
-  mapCountryData(mapped_data,
-                 nameColumnToPlot = "avg_unemp",
-                 catMethod = "quantiles",
-                 numCats = 3,
-                 mapTitle = "Average Unemployment in Europe (2015–2024)\nGreen = Low, Yellow = Medium, Red = High",
-                 colourPalette = c("green", "yellow", "red"),
-                 mapRegion = "Europe")
-                
+  # Stap 2: Koppel je data aan de wereldkaart
+  mapped_data_percent <- joinCountryData2Map(unemployment_percent_df,
+                                             joinCode = "NAME",
+                                             nameJoinColumn = "Country")
   
-               
+  # Stap 3: Maak de kaart op basis van procentuele werkloosheid
+  mapCountryData(
+    mapped_data_percent,
+    nameColumnToPlot = "avg_unemp_percent",
+    catMethod = "quantiles",
+    numCats = 3,
+    mapTitle = "Average Unemployment in Europe (2015–2024)",
+    colourPalette = c("green", "yellow", "red"),
+    mapRegion = "Europe",
+    addLegend = FALSE  # hide default color bar
+  )
+  
+  legend(
+    "topleft",
+    legend = c("Low", "Medium", "High"),
+    fill = c("green", "yellow", "red"),
+    title = "Unemployment level",
+    cex = 0.8)     
+  
 ```
 
 Here you provide a description of why the plot above is relevant to your specific social problem.
@@ -377,37 +378,50 @@ To explore how unemployment rates differ across sub-populations, we analyzed gen
 
 ```{r visualise_subpopulations, echo=FALSE}
 # Pivot both datasets to long form and add a Gender column
-men_long <- unemp_men %>%
-  select(Country = 1, `2015`:`2024`) %>%
-  pivot_longer(`2015`:`2024`, names_to = "Year", values_to = "Unemployment") %>%
-  mutate(Gender = "Men")
 
-women_long <- unemp_women %>%
-  select(Country = 1, `2015`:`2024`) %>%
-  pivot_longer(`2015`:`2024`, names_to = "Year", values_to = "Unemployment") %>%
-  mutate(Gender = "Women")
+GDP_df <- GDP_df %>%
+  rowwise() %>%
+  mutate(
+    GDP_growth_total = round((prod(1 + c_across(`2015`:`2024`) / 100, na.rm = TRUE) - 1) * 100, 2)
+  ) %>%
+  ungroup()
 
-# Combine and factor Year
-unemp_gender <- bind_rows(men_long, women_long) %>%
-  mutate(Year = factor(Year, levels = as.character(2015:2024)))
+colnames(GDP_df)[1]             <- "Country"
+colnames(Unemploymentlang)[1]   <- "Country"
 
-# Plot the boxplot with a shorter y–axis
-ggplot(unemp_gender, aes(x = Year, y = Unemployment, fill = Gender)) +
-  geom_boxplot(
-    position      = position_dodge(width = 0.8),
-    outlier.shape = NA
-  ) +
-  scale_y_continuous(
-    limits = c(0, 30),         # set the lower & upper bounds
-    expand = expansion(0, 0)   # remove padding at axis ends
-  ) +
+
+newx_df <- inner_join(
+  inner_join(GDP_df, Unemploymentlang, by = "Country"),
+  unemployment_percent_df,
+  by = "Country" 
+)
+
+breaks27 <- quantile(
+  newx_df$GDP_growth_total,
+  probs = c(0, 1/3, 2/3, 1),
+  na.rm = TRUE
+)
+
+newxx_df <- newx_df %>%
+  mutate(
+    EconClass = cut(
+      GDP_growth_total,
+      breaks = breaks27,
+      labels = c("Low growth", "Middle growth", "High growth"),
+      include.lowest = TRUE
+    )
+  )
+
+ggplot(newxx_df, aes(x = EconClass, y = `2024_percent`, fill = EconClass)) +
+  geom_boxplot() +
   labs(
-    title = "Unemployment Rates: Men vs Women (EU Countries, 2015–2024)",
-    x     = "Year",
-    y     = "Unemployment (%)",
-    fill  = "Gender"
+    title = "Unemployment Rate in 2024 by Economic Class",
+    x = "Economic Class",
+    y = "Unemployment Rate (%) in 2024",
+    fill = "Economic Class"
   ) +
   theme_minimal()
+
 ```
 
 The plot shows that while men and women follow similar overall trends, women tend to exhibit a slightly wider spread and, in several years (notably 2019, 2021, 2023, and 2024), higher median unemployment rates than men. The interquartile ranges also suggest greater variability in female unemployment, especially in later years.

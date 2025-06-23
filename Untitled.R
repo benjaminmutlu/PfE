@@ -256,6 +256,33 @@ ggplot(combo_df, aes(x = Year)) +
   )
   
   
+  # Stap 1: Zorg dat de landnaamkolom goed heet
+  colnames(unemployment_percent_df)[1] <- "Country"
+  
+  # Stap 2: Koppel je data aan de wereldkaart
+  mapped_data_percent <- joinCountryData2Map(unemployment_percent_df,
+                                             joinCode = "NAME",
+                                             nameJoinColumn = "Country")
+  
+  # Stap 3: Maak de kaart op basis van procentuele werkloosheid
+  mapCountryData(
+    mapped_data_percent,
+    nameColumnToPlot = "avg_unemp_percent",
+    catMethod = "quantiles",
+    numCats = 3,
+    mapTitle = "Average Unemployment in Europe (2015–2024)",
+    colourPalette = c("green", "yellow", "red"),
+    mapRegion = "Europe",
+    addLegend = FALSE  # hide default color bar
+  )
+  
+  legend(
+    "topleft",
+    legend = c("Low", "Medium", "High"),
+    fill = c("green", "yellow", "red"),
+    title = "Unemployment level",
+    cex = 0.8)     
+  
 
   
   
