@@ -31,6 +31,14 @@ colnames(GDP_df)[2:13] <- as.character(2013:2024)
 GDP_df[ , as.character(2013:2024)] <- lapply(GDP_df[ , as.character(2013:2024)], as.numeric)
 GDP_df <- GDP_df[-c(1,2,3),]
 
+# Clean data Total_Work_population
+Total_Work_population <- Total_Work_population[13:39, ]
+Total_Work_population <- Total_Work_population[, -c(2:41)]
+Total_Work_population <- Total_Work_population[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
+rownames(Total_Work_population) <- NULL
+colnames(Total_Work_population)[2:11] <- as.character(2015:2024)
+Total_Work_population[, 2:11] <- lapply(Total_Work_population[, 2:11], function(x) as.numeric(as.character(x)))
+
 # Creating a new variable in the GDP dataset
 GDP_df <- GDP_df %>%
   rowwise() %>%
@@ -43,6 +51,7 @@ GDP_df <- GDP_df %>%
 gdp_growth <- GDP_df %>%
   select(all_of(as.character(2013:2024)))
 avg_growth_per_year <- colMeans(gdp_growth, na.rm = TRUE) / 100  # omzetting naar factor
+
 growth_df <- data.frame(
   Year = 2013:2024,
   GrowthRate = avg_growth_per_year
@@ -51,14 +60,6 @@ growth_df <- growth_df %>%
   mutate(
     TotalGDP = cumprod(1 + GrowthRate) * 100  # basisjaar = 100
   )
-
-# Clean data Total_Work_population
-Total_Work_population <- Total_Work_population[13:39, ]
-Total_Work_population <- Total_Work_population[, -c(2:41)]
-Total_Work_population <- Total_Work_population[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
-rownames(Total_Work_population) <- NULL
-colnames(Total_Work_population)[2:11] <- as.character(2015:2024)
-Total_Work_population[, 2:11] <- lapply(Total_Work_population[, 2:11], function(x) as.numeric(as.character(x)))
 
 # nieuwe data set werkloosheid in procenten 
 colnames(Total_Work_population)[1]  <- "Country"
@@ -149,10 +150,6 @@ newxx_df <- newx_df %>%
       include.lowest = TRUE
     )
   )
-
-allmerged_df <- newxx_df %>%
-  select(1,29,30,31,32,33,34,35,36,37,38,)
-
 
 Boxplot_unemp_2024 <- ggplot(newxx_df, aes(x = EconClass, y = `2024_percent`, fill = EconClass)) +
   geom_boxplot() +

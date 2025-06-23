@@ -106,9 +106,7 @@ The datasets we used were quite complete however some countries the data was not
 ```{r loading_data, include=FALSE}
 GDP_df <- read_xlsx(path = "tec00115_page_spreadsheet.xlsx", "Sheet 1") 
 Unemploymentlang <- read_xlsx(path = "lfsa_ugad$defaultview_spreadsheet.xlsx", "Sheet 1")
-unemp_men <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 6")
-unemp_women <- readxl::read_xlsx("lfsa_ugad$defaultview_spreadsheet.xlsx", sheet = "Sheet 11")
-
+Total_Work_population <- read_xlsx(path = "tipslm16_page_spreadsheet.xlsx", "Sheet 1") 
 ```
 
 midwest is an example dataset included in the tidyverse package
@@ -118,6 +116,7 @@ midwest is an example dataset included in the tidyverse package
 ```{r echo=TRUE}
 head(GDP_df[,(1:3)], n = 5)
 head(Unemploymentlang[,(1:3)], n = 5)
+head(Total_Work_population[,(1:3)], n = 5)
 ```
 
 In this case we see 28 variables, but we miss some information on what units they are in. We also don't know anything about the year/moment in which this data has been captured.
@@ -146,6 +145,7 @@ Unemploymentlang <- Unemploymentlang[14:49, ]
 Unemploymentlang <- Unemploymentlang[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
 rownames(Unemploymentlang) <- NULL
 colnames(Unemploymentlang)[2:11] <- as.character(2015:2024)
+colnames(Unemploymentlang)[1]  <- "Country"
 
 ```
 
@@ -161,6 +161,8 @@ GDP_df <- GDP_df[, -c( 5, 12, 14, 16, 18)]
 colnames(GDP_df)[2:13] <- as.character(2013:2024)
 GDP_df[ , as.character(2013:2024)] <- lapply(GDP_df[ , as.character(2013:2024)], as.numeric)
 GDP_df <- GDP_df[-c(1,2,3),]
+colnames(GDP_df)[1]  <- "Country"
+
 ```
 
 ```{r show_data_GDP, echo=TRUE}
@@ -168,77 +170,100 @@ head(GDP_df, n = 3)
 
 ```
 
-```{r data_cleaning_unemp_men, include=FALSE}
-unemp_men <- unemp_men[14:49, ]
-unemp_men <- unemp_men[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
-rownames(unemp_men) <- NULL
-colnames(unemp_men)[2:11] <- as.character(2015:2024)
-unemp_men[, 2:11] <- lapply(unemp_men[, 2:11], function(x) as.numeric(as.character(x)))
+```{r data_cleaning_Total_work_pop, include=FALSE}
+Total_Work_population <- Total_Work_population[13:39, ]
+Total_Work_population <- Total_Work_population[, -c(2:41)]
+Total_Work_population <- Total_Work_population[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
+rownames(Total_Work_population) <- NULL
+colnames(Total_Work_population)[2:11] <- as.character(2015:2024)
+Total_Work_population[, 2:11] <- lapply(Total_Work_population[, 2:11], function(x) as.numeric(as.character(x)))
+colnames(Total_Work_population)[1]  <- "Country"
 
 ```
 
 ```{r show data unemp_men}
-head(unemp_men, n = 3)
+head(Total_Work_population, n = 3)
 ```
 
-```{r data_cleaning_unemp_women, include=FALSE}
-unemp_women <- unemp_women[14:49, ]
-unemp_women <- unemp_women[, -c( 3, 5, 7 ,9 ,11 ,13 ,15 ,17 ,19 ,21)]
-rownames(unemp_women) <- NULL
-colnames(unemp_women)[2:11] <- as.character(2015:2024)
-unemp_women[, 2:11] <- lapply(unemp_women[, 2:11], function(x) as.numeric(as.character(x)))
-```
-
-```{r show data unemp_women}
-head(unemp_women, n = 3)
-```
-
-Please use a separate 'R block' of code for each type of cleaning. So, e.g. one for missing values, a new one for removing unnecessary variables etc.
 
 ## 3.2 Generate necessary variables
 
-In this section, we generate and explain two new variables that are useful for our analysis of unemployment and GDP growth trends in Europe.
+Variable 1: Classification by Economic Growth
 
-Variable 1: Average Unemployment by Gender
-
-To compare long-term unemployment trends across genders and countries, we calculate the average unemployment rate for men and women over a 10-year period.
+To compare unemployment rates across Europe, we divided the countries into three equally sized groups based on total GDP growth. This allows us to compare unemployment rates across different levels of economic growth.
 
 ```{r gen_var1}
-unemp_men$avg_men <- rowMeans(unemp_men[, 2:11], na.rm = TRUE)
-unemp_women$avg_women <- rowMeans(unemp_women[, 2:11], na.rm = TRUE)
 
-Unemploymentlang$avg_women <- unemp_women$avg_women
-Unemploymentlang$avg_men <- unemp_men$avg_men
+GDP_df <- GDP_df %>%
+  rowwise() %>%
+  mutate(
+    GDP_growth_total = round((prod(1 + c_across(`2015`:`2024`) / 100, na.rm = TRUE) - 1) * 100, 2)
+  ) %>%
+  ungroup()
+
+merged_df <- inner_join(Total_Work_population, Unemploymentlang, by = "Country")
+
+unemployment_percent_df <- merged_df["Country"]
+
+newx_df <- inner_join(
+  inner_join(GDP_df, Unemploymentlang, by = "Country"),
+  unemployment_percent_df,
+  by = "Country" 
+)
+
+breaks27 <- quantile(
+  newx_df$GDP_growth_total,
+  probs = c(0, 1/3, 2/3, 1),
+  na.rm = TRUE
+)
+
+newxx_df <- newx_df %>%
+  mutate(
+    EconClass = cut(
+      GDP_growth_total,
+      breaks = breaks27,
+      labels = c("Low growth", "Middle growth", "High growth"),
+      include.lowest = TRUE
+    )
+  )
 
 ```
 
-We used the unemp_men and unemp_women data frames, which contain annual unemployment rates from 2013 to 2022, sourced from Eurostat (2024). The rowMeans() function computes the average rate per country. The result is stored in the Unemploymentlang data frame for easier visualization.
-
-These new variables are useful because they allow us to summarize a decade of data into a single value per gender, enabling straightforward comparison across countries. This helps highlight gender disparities and identify which European countries have the largest gaps in unemployment.
+First, we used all available data to create a new column representing the total GDP growth. Based on this, we divided the countries into three equally sized groups. This allows us to compare unemployment rates relative to each country's level of economic growth
 
 ```{r show data}
-head(Unemploymentlang[, c(1, 12, 13)], n = 5)
+head(newxx_df[, c(1,25)], n = 5)
 
 ```
-
-We will use these variables to create a geographical plot that visualizes average unemployment rates across European countries from 2015 to 2024, using color coding to indicate the severity of unemployment. This visualization will help us analyze regional unemployment patterns and identify countries with relatively higher or lower unemployment, as well as explore potential gender-based disparities.
+We use this data to clearly show the unemployment rates in different types of countries with varying levels of growth, in order to identify a possible relationship between them. We use a boxplot for this, so the three different groups are clearly arranged side by side and easy to compare.
 
 Variable 2: Cumulative GDP Growth
 
 We also create variables to assess cumulative GDP growth before and after the COVID-19 pandemic.
 
-```{r gen_var2}
+```{r gen_var_beforre_covid}
 GDP_df <- GDP_df %>%
   rowwise() %>%
   mutate(
-    GDP_before_covid = round((prod(1 + c_across(`2015`:`2019`) / 100, na.rm = TRUE) - 1) * 100, 2),
-    GDP_after_covid  = round((prod(1 + c_across(`2020`:`2024`) / 100, na.rm = TRUE) - 1) * 100, 2)
-  ) %>%
-  ungroup()
+    GDP_before_covid = round((prod(1 + c_across(`2015`:`2019`) / 100, na.rm = TRUE) - 1) * 100, 2))
 
+```
+
+```{r gen_var_after_covid}
+GDP_df <- GDP_df %>%
+  rowwise() %>%
+  mutate(GDP_after_covid = round((prod(1 + c_across(`2020`:`2024`) / 100, na.rm = TRUE) - 1) * 100, 2)) %>%
+  ungroup()
+```
+
+After creating these two variables, we created a new data frame called growth_df. In this data frame, we calculated the average GDP growth per year across all countries. We then used this data to create two plots: EU GDP Growth vs. Average Unemployment and Cumulative EU GDP Growth.
+
+
+```{r gen_ data_frame_avg_GDP_growth}
 gdp_growth <- GDP_df %>%
   select(all_of(as.character(2013:2024)))
-avg_growth_per_year <- colMeans(gdp_growth, na.rm = TRUE) / 100  # omzetting naar factor
+avg_growth_per_year <- colMeans(gdp_growth, na.rm = TRUE) / 100 
+
 growth_df <- data.frame(
   Year = 2013:2024,
   GrowthRate = avg_growth_per_year
@@ -246,9 +271,8 @@ growth_df <- data.frame(
 
 growth_df <- growth_df %>%
   mutate(
-    TotalGDP = cumprod(1 + GrowthRate) * 100  # basisjaar = 100
+    TotalGDP = cumprod(1 + GrowthRate) * 100
   )
-
 ```
 
 We used the GDP_df data, which contains annual GDP growth rates from 2015 to 2024. Using c_across() and prod() inside mutate(), we calculate the compounded GDP growth rate for two periods:
@@ -259,12 +283,38 @@ We used the GDP_df data, which contains annual GDP growth rates from 2015 to 202
 This transformation is informative because it helps assess how economic performance shifted due to the pandemic. By comparing these two variables, we can identify which countries experienced economic resilience and which struggled to recover.
 
 ```{r show data GDP}
-head(GDP_df, 5)[ , c(1, 14, 15)]
+head(GDP_df, 5)[ , c(1, 14, 15,16)]
+head(growth_df)[,c(2,3)]
 ```
 
 These variables provide a basis for analyzing and comparing GDP performance across countries before and after the pandemic. This allows us to assess the relative economic resilience and recovery of different European countries, and identify which economies grew more strongly or faced longer-term setbacks due to COVID-19.
 
 We visualize the average cumulative GDP growth across EU countries from 2013 to 2024 in a line chart, setting the base year to 100. The red dashed line at 2020 highlights the start of the COVID-19 pandemic, allowing us to visually compare pre- and post-pandemic trends.
+
+Variable 3:
+
+To analyse 
+
+```{r gen_var_Growth_Rate}
+gdp_growth <- GDP_df %>%
+  select(all_of(as.character(2015:2024)))
+
+avg_growth_per_year <- colMeans(gdp_growth, na.rm = TRUE) / 100
+
+```
+
+```{r gen_var_Total_GDP}
+growth_df <- data.frame(
+  Year = 2015:2024,
+  GrowthRate = avg_growth_per_year
+) %>%
+  mutate(TotalGDP = cumprod(1 + GrowthRate) * 100)
+
+unemp_df <- Unemploymentlang %>%
+  summarise(across(all_of(as.character(2015:2024)), ~mean(as.numeric(.), na.rm = TRUE))) %>%
+  pivot_longer(cols = everything(), names_to = "Year", values_to = "Unemployment") %>%
+  mutate(Year = as.integer(Year))
+```
 
 ## 3.3 Visualize temporal variation
 
@@ -368,53 +418,30 @@ This visualization aligns closely with our project’s objective of examining un
 
 ## 3.6 Event analysis
 
-Analyze the relationship between two variables.
+In this analyses we analyse 2 key veriables, we compare avarage GDP growth over the years in the EU, and we compare this to the avarage unemployment rate. We do this by adding two y-axes, on the left side we have cumulative GDP index, with its base year in 2015 we start with 100%.
 
 ```{r analysis, echo=FALSE}
-# ///Temporal Variation Plot/EU Economic Development: GDP Index and Average Unemployment (2015–2024)///
-# 📊 1. Maak je samengestelde GDP-index klaar (2015–2024)
-gdp_growth <- GDP_df %>%
-  select(all_of(as.character(2015:2024)))
 
-avg_growth_per_year <- colMeans(gdp_growth, na.rm = TRUE) / 100
-
-growth_df <- data.frame(
-  Year = 2015:2024,
-  GrowthRate = avg_growth_per_year
-) %>%
-  mutate(TotalGDP = cumprod(1 + GrowthRate) * 100)
-
-# 📊 2. Maak gemiddelde werkloosheid klaar (2015–2024)
-unemp_df <- Unemploymentlang %>%
-  summarise(across(all_of(as.character(2015:2024)), ~mean(as.numeric(.), na.rm = TRUE))) %>%
-  pivot_longer(cols = everything(), names_to = "Year", values_to = "Unemployment") %>%
-  mutate(Year = as.integer(Year))
-
-# 🔗 3. Combineer de twee datasets
+#combine datasets
 combo_df <- left_join(growth_df, unemp_df, by = "Year")
 
-# 🎨 4. Plot met dubbele y-as en mooie styling
+#Build the plot
 
 ggplot(combo_df, aes(x = Year)) +
-  # Blauwe GDP-lijn (links)
   geom_line(aes(y = TotalGDP), color = "#0072B2", size = 1.3) +
   geom_point(aes(y = TotalGDP), color = "#0072B2", size = 2) +
   
-  # Oranje werkloosheidslijn (rechts, herschaald)
   geom_line(aes(y = Unemployment / 7.5), color = "#E69F00", size = 1.3) +
   geom_point(aes(y = Unemployment / 7.5), color = "#E69F00", size = 2) +
   
-  # Y-assen
   scale_y_continuous(
     limits = c(0, 135),
     name = "Cumulative GDP Index (Base year = 100)",
     sec.axis = sec_axis(~.*7.5, name = "Average Unemployment (in thousands)", breaks = seq(0, 1000, 250))
   ) +
   
-  # X-as per jaar tonen
   scale_x_continuous(breaks = 2015:2024) +
   
-  # Titel & opmaak
   labs(
     title = "EU GDP Growth vs. Average Unemployment (2015–2024)",
     subtitle = "Left: GDP Index (blue), Right: Avg. Unemployment (orange)",
