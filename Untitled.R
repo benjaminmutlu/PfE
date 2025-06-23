@@ -100,16 +100,14 @@ unemployment_percent_df$avg_unemp_percent <-
     ),
     1
   )
-
-# //Event Analysis Plot//Plotting the GDP growth from 2013 to 2024-//////
 ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
   geom_line(color = "blue", size = 1) +
   geom_point(color = "blue") +
   geom_vline(xintercept = 2020, color = "red", linetype = "dashed", size = 1) +
-  scale_x_continuous(breaks = 2015:2024) +  # elk jaar tonen
+  scale_x_continuous(breaks = 2013:2024) +  # elk jaar tonen
   labs(
-    title = "Cumulative EU GDP Growth (2015–2024)",
-    subtitle = "Red line marks the start of COVID-19 (2020), base year = 100",
+    title = "Cumulative EU GDP Growth (2013–2024)",
+    subtitle = "Red line marks the start of Covid-19 (2020), ",
     x = "Year",
     y = "Cumulative GDP Index"
   ) +
@@ -117,7 +115,7 @@ ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
 
 
 #///Sub-population Plot///
-
+# Bereken totale GDP-groei per land
 GDP_df <- GDP_df %>%
   rowwise() %>%
   mutate(
@@ -125,16 +123,17 @@ GDP_df <- GDP_df %>%
   ) %>%
   ungroup()
 
-colnames(GDP_df)[1]             <- "Country"
-colnames(Unemploymentlang)[1]   <- "Country"
+colnames(GDP_df)[1] <- "Country"
+colnames(Unemploymentlang)[1] <- "Country"
 
-
+# Combineer datasets
 newx_df <- inner_join(
   inner_join(GDP_df, Unemploymentlang, by = "Country"),
   unemployment_percent_df,
   by = "Country" 
 )
 
+# Verdeel landen in drie groeigroepen op basis van GDP-groei
 breaks27 <- quantile(
   newx_df$GDP_growth_total,
   probs = c(0, 1/3, 2/3, 1),
@@ -143,25 +142,25 @@ breaks27 <- quantile(
 
 newxx_df <- newx_df %>%
   mutate(
-    EconClass = cut(
+    GDP_Growth_Group = cut(
       GDP_growth_total,
       breaks = breaks27,
-      labels = c("Low growth", "Middle growth", "High growth"),
+      labels = c("Low GDP Growth", "Medium GDP Growth", "High GDP Growth"),
       include.lowest = TRUE
     )
   )
 
-Boxplot_unemp_2024 <- ggplot(newxx_df, aes(x = EconClass, y = `2024_percent`, fill = EconClass)) +
+# Genereer boxplot
+ggplot(newxx_df, aes(x = GDP_Growth_Group, y = `2024_percent`, fill = GDP_Growth_Group)) +
   geom_boxplot() +
   labs(
-    title = "Unemployment Rate in 2024 by Economic Class",
-    x = "Economic Class",
+    title = "Unemployment Rate in 2024 by GDP Growth Group",
+    x = "GDP Growth Group (2015–2024)",
     y = "Unemployment Rate (%) in 2024",
-    fill = "Economic Class"
+    fill = "GDP Growth Group"
   ) +
   theme_minimal()
 
-print(Boxplot_unemp_2024)
 
 # ///Temporal Variation Plot/EU Economic Development: GDP Index and Average Unemployment (2015–2024)///
 # 📊 1. Maak je samengestelde GDP-index klaar (2015–2024)

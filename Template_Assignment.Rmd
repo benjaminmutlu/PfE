@@ -327,7 +327,7 @@ ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
   scale_x_continuous(breaks = 2013:2024) +  # elk jaar tonen
   labs(
     title = "Cumulative EU GDP Growth (2013–2024)",
-    subtitle = "Base year = 100, ",
+    subtitle = "Red line marks the start of Covid-19 (2020), ",
     x = "Year",
     y = "Cumulative GDP Index"
   ) +
@@ -405,8 +405,7 @@ Here you provide a description of why the plot above is relevant to your specifi
 To explore how unemployment rates differ across sub-populations, we analyzed gender-based variation across European countries from 2015 to 2024. We used annual data from Eurostat (2025) to compare unemployment rates between men and women. The figure below presents boxplots for each year, showing the distribution of unemployment rates across countries, grouped by gender.
 
 ```{r visualise_subpopulations, echo=FALSE}
-# Pivot both datasets to long form and add a Gender column
-
+# Bereken totale GDP-groei per land
 GDP_df <- GDP_df %>%
   rowwise() %>%
   mutate(
@@ -414,16 +413,17 @@ GDP_df <- GDP_df %>%
   ) %>%
   ungroup()
 
-colnames(GDP_df)[1]             <- "Country"
-colnames(Unemploymentlang)[1]   <- "Country"
+colnames(GDP_df)[1] <- "Country"
+colnames(Unemploymentlang)[1] <- "Country"
 
-
+# Combineer datasets
 newx_df <- inner_join(
   inner_join(GDP_df, Unemploymentlang, by = "Country"),
   unemployment_percent_df,
   by = "Country" 
 )
 
+# Verdeel landen in drie groeigroepen op basis van GDP-groei
 breaks27 <- quantile(
   newx_df$GDP_growth_total,
   probs = c(0, 1/3, 2/3, 1),
@@ -432,23 +432,25 @@ breaks27 <- quantile(
 
 newxx_df <- newx_df %>%
   mutate(
-    EconClass = cut(
+    GDP_Growth_Group = cut(
       GDP_growth_total,
       breaks = breaks27,
-      labels = c("Low growth", "Middle growth", "High growth"),
+      labels = c("Low GDP Growth", "Medium GDP Growth", "High GDP Growth"),
       include.lowest = TRUE
     )
   )
 
-ggplot(newxx_df, aes(x = EconClass, y = `2024_percent`, fill = EconClass)) +
+# Genereer boxplot
+ggplot(newxx_df, aes(x = GDP_Growth_Group, y = `2024_percent`, fill = GDP_Growth_Group)) +
   geom_boxplot() +
   labs(
-    title = "Unemployment Rate in 2024 by Economic Class",
-    x = "Economic Class",
+    title = "Unemployment Rate in 2024 by GDP Growth Group",
+    x = "GDP Growth Group (2015–2024)",
     y = "Unemployment Rate (%) in 2024",
-    fill = "Economic Class"
+    fill = "GDP Growth Group"
   ) +
   theme_minimal()
+
 
 ```
 
