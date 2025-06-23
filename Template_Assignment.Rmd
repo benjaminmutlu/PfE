@@ -444,7 +444,7 @@ newxx_df <- newx_df %>%
 ggplot(newxx_df, aes(x = GDP_Growth_Group, y = `2024_percent`, fill = GDP_Growth_Group)) +
   geom_boxplot() +
   labs(
-    title = "Unemployment Rate in 2024 by GDP Growth Group",
+    title = "Unemployment Rate in 2024 by GDP Growth",
     x = "GDP Growth Group (2015–2024)",
     y = "Unemployment Rate (%) in 2024",
     fill = "GDP Growth Group"
