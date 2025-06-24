@@ -402,9 +402,9 @@ Here you provide a description of why the plot above is relevant to your specifi
 
 ## 3.5 Visualize sub-population variation
 
-To explore how unemployment varies across different levels of economic performance, we classified European countries into three economic classes: Low growth, Middle growth, and High growth. These classes were derived by calculating the total cumulative GDP growth for each country between 2015 and 2024. This was done using annual GDP growth data retrieved from Eurostat (2025), and countries were then grouped into tertiles based on their total growth performance.
+To explore how unemployment varies across economic performance levels, we classified European countries into three groups: Low, Middle, and High growth, based on their total cumulative GDP growth from 2015 to 2024 using data from Eurostat (2025). This grouping allows us to analyze how different economic contexts relate to labor market outcomes.
 
-We then compared the unemployment rates in 2024 across these economic classes. The unemployment data was merged with the GDP dataset to form a unified data frame, which enabled us to conduct this sub-population analysis.
+We merged unemployment and GDP data, then plotted 2024 unemployment rates across these economic classes:
 
 ```{r visualise_subpopulations, echo=FALSE}
 # Bereken totale GDP-groei per land
@@ -456,9 +456,7 @@ ggplot(newxx_df, aes(x = GDP_Growth_Group, y = `2024_percent`, fill = GDP_Growth
 
 ```
 
-The boxplot reveals that countries in the High growth category tend to have lower unemployment rates, with both a lower median and smaller spread. In contrast, Low growth and Middle growth groups show greater variability and higher central unemployment values. These patterns suggest that stronger economic performance over the past decade may be associated with improved labor market outcomes. However, differences within each group also highlight the role of country-specific factors beyond GDP growth alone.
-
-This sub-population comparison illustrates the unequal impact of unemployment across economic contexts, reinforcing the broader relationship between macroeconomic growth and labor market performance in Europe.
+The plot shows that countries in the High growth group tend to have lower and less variable unemployment rates, while Low and Middle growth countries show higher medians and wider spreads. This supports our project’s core question by highlighting how macroeconomic growth correlates with labor market outcomes.
 
 ## 3.6 Event analysis
 
