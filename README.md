@@ -4,11 +4,9 @@ editor_options:
     wrap: 72
 ---
 
-1.  Title The name of the project.
-
     -   Unemployment in the EU.
 
-2.  Description Short explanation: what does the project do and why is
+1.  Description Short explanation: what does the project do and why is
     it useful or interesting?
 
     -   This project analyzes unemployment trends and GDP growth in
@@ -24,11 +22,7 @@ editor_options:
         policymakers to better understand economic development patterns
         and the impact of events like COVID-19 on employment.
 
-3.  Screenshots / Demo (optional) Show how it looks or works.
-
-    -   
-
-4.  Installation How do you install the project? Think of git clone, npm
+2.  Installation How do you install the project? Think of git clone, npm
     install, pip install, etc.
 
     -   Clone repository: git clone <(repository link)>
@@ -43,11 +37,7 @@ editor_options:
 
         -   install.packages("dplyr")
 
-5.  Use Examples of how to run or use the project.
-
-    -   source("Untitled.R")
-
-6.  Features (optional) What are the most important functions or
+3.  Features: What are the most important functions or
     capabilities?
 
     -   Cleans and preprocesses multiple EU datasets (GDP, unemployment
@@ -67,7 +57,7 @@ editor_options:
 
         -   Map of average unemployment rates.
 
-7.  Contributing (optional) How can others help with the development?
+4.  Contributing, How can others help with the development?
 
     -   If you'd like to contribute
 
@@ -81,11 +71,11 @@ editor_options:
 
         -   Create a Pull Request
 
-8.  License Which license are you using? (MIT, GPL, etc.)
+5.  License Which license are you using? (MIT, GPL, etc.)
 
     -   This project is licensed under the **MIT License**.
 
-9.  Authors / Credits (optional) Who worked on it? Possibly link to
+6.  Authors / Credits (optional) Who worked on it? Possibly link to
     profiles.
 
     -   Tutorial 1 Group 3. ( Arsema Tewelde, Chris van Weerdenburg,
