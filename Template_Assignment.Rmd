@@ -2,7 +2,10 @@
 title: "Research Unemployment to GDP"
 author: "Studentnames and studentnumbers here"
 date: "`r Sys.Date()`"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 ---
 
 # Set-up your environment
@@ -193,7 +196,7 @@ colnames(Total_Work_population)[1]  <- "Country"
 
 ```
 
-```{r show data unemp_men}
+```{r show data total work population}
 head(Total_Work_population, n = 3)
 ```
 
@@ -314,8 +317,6 @@ We visualize the average cumulative GDP growth across EU countries from 2013 to 
 
 Variable 3:
 
-To analyse
-
 ```{r gen_var_Growth_Rate}
 gdp_growth <- GDP_df %>%
   select(all_of(as.character(2015:2024)))
@@ -324,7 +325,7 @@ avg_growth_per_year <- colMeans(gdp_growth, na.rm = TRUE) / 100
 
 ```
 
-```{r gen_var_Total_GDP}
+```{r gen_var_Total_GDP, include=FALSE}
 growth_df <- data.frame(
   Year = 2015:2024,
   GrowthRate = avg_growth_per_year
@@ -337,7 +338,24 @@ unemp_df <- Unemploymentlang %>%
   mutate(Year = as.integer(Year))
 ```
 
-Variable 4
+**Variable 3 – EU‐wide Average Growth & Unemployment**\
+To get a single time series for the whole EU, we first compute the **average annual GDP growth** by taking the mean of each year’s country‐level growth rates (2015–2024) and dividing by 100 to turn percentages into proportions. We store that in `avg_growth_per_year`. We then build `growth_df`, a data frame with:
+
+-   **Year** – from 2015 to 2024
+
+-   **GrowthRate** – the mean annual GDP growth for the EU
+
+-   **TotalGDP** – a cumulative GDP index (base 100 in 2015) calculated by compounding each year’s GrowthRate with `cumprod(1 + GrowthRate)`.
+
+Next, we summarize our unemployment data into `unemp_df` by:
+
+-   Taking the row‐wise mean of each year’s unemployment figures across all countries,
+
+-   Pivoting into long format so we have one row per year with the **average EU‐wide unemployment** level.
+
+These two new variables give us a concise picture of the EU’s macroeconomic trajectory and its labor market over time, and they form the basis for our event‐analysis plots (e.g. overlaying GDP and unemployment trends).
+
+Variable 4:
 
 ```{r}
 
@@ -389,8 +407,7 @@ for (year in years) {
 
 ```
 
-```{r}
-{r show data unemployment_percent_df}
+```{r show data unemployment_percent}
 head(unemployment_percent_df, n = 3)
 ```
 
@@ -416,9 +433,8 @@ unemployment_percent_df$avg_unemp_percent <-
   )
 ```
 
-```{r}
-{r show data unemployment_percent_df}
-head(unemployment_percent_df, n = 3)
+```{r show data unemployment_percent_df}
+head(unemployment_percent_df[, c(1, 12)], n = 3)
 ```
 
 After the unemployment percentage variable was created, we also wanted to know the average percentage of unemployment over the years. That’s why we added a new column to the unemployment percentage dataset with the average unemployment percentage. This gives new insights, because instead of looking at each year separately, it is now visible at a glance how high or low the unemployment is in a country. This makes it easier to compare countries and, for example, display it on a map. Here is a short description of important functions used for the new variables:
@@ -452,24 +468,19 @@ This graph above shows the economic growth called GDP of the European Union over
 
 ## 3.4 Visualize spatial variation
 
-```{r}
-# Zorg dat kolomnamen kloppen
+```{r echo=FALSE}
 colnames(Total_Work_population)[1] <- "Country"
 colnames(Unemploymentlang)[1] <- "Country"
 
-# Merge datasets
 merged_df <- inner_join(Total_Work_population, Unemploymentlang, by = "Country")
 
-# Zet jaartallen
 years <- 2015:2024
 num_x <- paste0(years, ".x")
 num_y <- paste0(years, ".y")
 
-# Zorg dat kolommen numeriek zijn
 merged_df[num_x] <- lapply(merged_df[num_x], as.numeric)
 merged_df[num_y] <- lapply(merged_df[num_y], as.numeric)
 
-# Bereken percentage werkloosheid per jaar
 unemployment_percent_df <- merged_df %>%
   transmute(Country = Country)
 
@@ -482,18 +493,15 @@ for (year in years) {
     merged_df[[unemp_col]] / merged_df[[pop_col]] * 100
 }
 
-# Gemiddelde werkloosheid over de jaren
 unemployment_percent_df$avg_unemp_percent <- round(
   rowMeans(unemployment_percent_df[ , grep("_percent$", names(unemployment_percent_df))], na.rm = TRUE),
   1
 )
 
-# Kaartdata koppelen
 mapped_data_percent <- joinCountryData2Map(unemployment_percent_df,
                                            joinCode = "NAME",
                                            nameJoinColumn = "Country")
 
-# Plot kaart
 mapCountryData(
   mapped_data_percent,
   nameColumnToPlot = "avg_unemp_percent",
@@ -655,7 +663,7 @@ Based on the charts and datasets provided, we can draw up the following findings
 
 ## 5.1 Github repository link
 
-Provide the link to your PUBLIC repository here: ...
+<https://github.com/benjaminmutlu/PfE>
 
 ## 5.2 Reference list
 
