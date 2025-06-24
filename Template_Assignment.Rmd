@@ -27,7 +27,7 @@ require(ggplot2)
 
 # Unemployment in Europe
 
-Chris van Weerdenburg, Arsema Tewelde, Alan Peralta Camacho, Benjamin Mutlu, Cihan Öztürk, Israa Shidai, Jeremey Li
+Chris van Weerdenburg(2827238), Arsema Tewelde(2863982), Alan Peralta Camacho(2810368), Benjamin Mutlu(2846678), Cihan Öztürk(2769294), Israa Shidai(2849708), Jeremey Li(2848651)
 
 Tutorial group number: 3
 
@@ -36,12 +36,6 @@ Tutorial lecturer: Jack Fitzgerald
 # Part 1 - Identify a Social Problem
 
 ## 1.1 Describe the Social Problem
-
-Include the following:
-
--   Why is this relevant?
-
--   ....
 
 **Unemployment in the European Union (EU)** is a significant social issue that affects millions of individuals, families, and communities across all countries within Europe. It refers to the condition where people who are willing and able to work are unable to find suitable employment. This issue impacts not only those directly affected by this dilemma but also the broader economy and social cohesion within Europe. This is relevant because:
 
@@ -119,19 +113,19 @@ head(Unemploymentlang[,(1:3)], n = 5)
 head(Total_Work_population[,(1:3)], n = 5)
 ```
 
-In this case we see 28 variables, but we miss some information on what units they are in. We also don't know anything about the year/moment in which this data has been captured.
+*Unemploymentlang:* this dataset contains 21 columns and 56 rows. The first 9 rows, row 11and rows 50 to 56 provide only N/A’s, representing headers, notes, or non-country data. All odd-numbered columns, except the first, contain N/A’s and observation flags, which in this dataset are represented by the letters ‘b’ (break in time series), ‘d’ (definition differs) or ‘bd’ (both). The even-numbered columns hold unemployment figures (in thousands) for 2015-2024, with ‘:’ indicating unavailable data. The columns names are unclear and uninformative.
 
-These are things that are usually included in the metadata of the dataset. For your project, you need to provide us with the information from your metadata that we need to understand your dataset of choice.
+*GDP:* The dataset has 25 columns and 59 rows. The first 7, 9^th^ and last 7 rows consist of N/A’s, since they only include headers, notes, titles. All odd-numbered columns are empty (N/A) except for the first. However, they contain observation flags: ‘b’, ‘p’ (provision) or ‘e’ (estimated). Even-numbered columns present the GDP percentage changes from 2013-2024, however with some countries the data is unavailable. This is represented by a ‘:’. The columns are only numbered and uninformative. 
 
-## 2.3 Describe the type of variables included
+*Total_Work_Population:* This dataset consists of 50 columns and 46 rows. The first 10, the 12^th^ and the last 7 rows are empty (N/A’s) besides the column headers, such as country, sex and age groups. All odd numbered columns, but the first one are empty, meaning they only contain N/A’s and observation flags such as ‘b’, ‘d’ or ‘bd’. Even-numbered columns are about the actual data: number of employed people in thousands for years 1991-2024. Whenever data is unavailable, it is implied with a colon ‘:’. The columns names are only numbers and tell nothing of importance.
 
-Think of things like:
+Each dataset complements the other. The first and second dataset show the relationship between a country’s economic performance (GDP) and its unemployment rate. The second and third dataset illustrate the unemployed to labour force population ratio. This manner we can see the unemployment rate for each country, proportionally.
 
--   Do the variables contain health information or SES information?
+**2.3 Describe the type of variables included**
 
--   Have they been measured by interviewing individuals or is the data coming from administrative sources?
+The three datasets provided contain various types of variables primarily focused on the employment statistics (Unemploymentlang), GDP growth rate (GDP) and labour force population (Total_Work_Population) which relate to socioeconomics status (SES). Obvious variables such as time in years and place in countries are in each dataset.
 
-*For the sake of this example, I will continue with the assignment...*
+Eurostat is the source of all three datasets. They do not gather the data themselves. As previously stated, the data is collected by national statistical authorities in EU countries. These authorities evaluate, analyse and report national data to Eurostat (European commission, 2025).
 
 # Part 3 - Quantifying
 
@@ -153,6 +147,14 @@ colnames(Unemploymentlang)[1]  <- "Country"
 head(Unemploymentlang, n = 3)
 ```
 
+This data, as mentioned earlier, contains information about unemployment in Europe. But in the original data, there were many unnecessary rows that were not relevant. For example, the first rows contained metadata like titles and explanations. There were also many empty columns or columns with NA. By cleaning this all up and keeping only the countries and the years 2015 to 2024, it looked much clearer. Also, doing a clear analysis from the dataset was now much easier. Here is a small summary of which functions were used to clean the data:
+
+-The first 13 rows were not relevant and were removed using Unemploymentlang[14:49, ]
+
+-Empty columns and unnecessary columns were removed with Unemploymentlang[, -c(3, 5, 7, 9, 11, 13, 15, 17, 19, 21)]
+
+-And lastly, the column names were replaced with the correct years using colnames(...)[2:11] \<- as.character(2015:2024)
+
 ```{r data_cleaning_GDP, include=FALSE}
 GDP_df <- GDP_df[10:52, ]
 rownames(GDP_df) <- NULL
@@ -170,6 +172,16 @@ head(GDP_df, n = 3)
 
 ```
 
+As mentioned earlier, this data contains the annual growth percentages of the GDP. In the original data, there were a lot of empty columns and also a lot of unnecessary information. There were also NA present. The goal was to focus on the years from 2013 to 2024 and to remove everything outside of that. By cleaning the data this way, only the relevant information remained and the dataset became a bit smaller. In an ideal situation, the data would already have been cleaned properly and focused on 2013–2024. Here is a small summary of which functions were used to clean the data:
+
+-The first 9 rows were removed using GDP_df \<- GDP_df[10:52,], and then also the next 3 rows using GDP_df \<- GDP_df[-c(1,2,3), ], so that the dataset started directly with the countries
+
+-Empty columns with NA symbols were removed using colSums(!is.na(...)) \> 0 and [, -c(...)]
+
+-The column names were then changed to the years from 2013 to 2024 using colnames(GDP_df)[2:13] \<- as.character(2013:2024)
+
+-All values were also converted to numeric using lapply()
+
 ```{r data_cleaning_Total_work_pop, include=FALSE}
 Total_Work_population <- Total_Work_population[13:39, ]
 Total_Work_population <- Total_Work_population[, -c(2:41)]
@@ -184,6 +196,16 @@ colnames(Total_Work_population)[1]  <- "Country"
 ```{r show data unemp_men}
 head(Total_Work_population, n = 3)
 ```
+
+The data set of the total working population contained a lot of years, going all the way back to 1995. But for our project, it was only relevant to have the years from 2015 to 2024. By deleting the other years, it became a lot clearer and more focused on the correct years. The reason why it was chosen to start from 2015 is because from those years on, a lot of data was available and it is also more convenient for the project. In an ideal world, it would have been nicer if all the unnecessary information had already been removed. A few things were done to clean the data; here is a small summary of them:
+
+-The first 12 rows consisted of irrelevant things that were removed using Total_Work_population[13:39, ]
+
+-All the years before 2015 were removed with [, -c(2:41)]
+
+-Then, all empty intermediate columns with NA were removed with [, -c(3, 5, 7, 9, 11, 13, 15, 17, 19, 21)]
+
+-And finally, the column names were renamed with the correct years using colnames(...)[2:11] \<- as.character(2015:2024)
 
 ## 3.2 Generate necessary variables
 
@@ -315,6 +337,98 @@ unemp_df <- Unemploymentlang %>%
   mutate(Year = as.integer(Year))
 ```
 
+Variable 4
+
+```{r}
+
+GDP_df <- GDP_df %>%
+  rowwise() %>%
+  mutate(
+    GDP_before_covid = round((prod(1 + c_across(`2015`:`2019`) / 100, na.rm = TRUE) - 1) * 100, 2),
+    GDP_after_covid  = round((prod(1 + c_across(`2020`:`2024`) / 100, na.rm = TRUE) - 1) * 100, 2)
+  ) %>%
+  ungroup()
+
+gdp_growth <- GDP_df %>%
+  select(all_of(as.character(2013:2024)))
+avg_growth_per_year <- colMeans(gdp_growth, na.rm = TRUE) / 100  # omzetting naar factor
+
+growth_df <- data.frame(
+  Year = 2013:2024,
+  GrowthRate = avg_growth_per_year
+)
+growth_df <- growth_df %>%
+  mutate(
+    TotalGDP = cumprod(1 + GrowthRate) * 100  # basisjaar = 100
+  )
+
+colnames(Total_Work_population)[1]  <- "Country"
+colnames(Unemploymentlang)[1]   <- "Country"
+
+merged_df <- inner_join(Total_Work_population, Unemploymentlang, by = "Country")
+
+years <- 2015:2024
+
+num_x <- paste0(years, ".x")
+num_y <- paste0(years, ".y")
+
+merged_df[ num_x ] <- lapply(merged_df[ num_x ], as.numeric)
+merged_df[ num_y ] <- lapply(merged_df[ num_y ], as.numeric)
+
+
+unemployment_percent_df <- merged_df["Country"]
+
+for (year in years) {
+  pop_col  <- paste0(year, ".x")      # bv. "2015.x"
+  unemp_col<- paste0(year, ".y")      # bv. "2015.y"
+  perc_col <- paste0(year, "_percent")# bv. "2015_percent"
+  
+  unemployment_percent_df[[perc_col]] <-
+    merged_df[[unemp_col]] / merged_df[[pop_col]] * 100
+}
+
+```
+
+```{r}
+{r show data unemployment_percent_df}
+head(unemployment_percent_df, n = 3)
+```
+
+To calculate the unemployment percentage per country, two datasets were used: the Total_work_population data that indicates the working population of a country and the dataset Unemploymentlang, which gives the number of unemployed people in a country. The reason these two datasets were combined is that the absolute number of unemployed people in a country means nothing if you don’t compare it to the total population of that country. By dividing the number of unemployed per country by the population, we got a completely new dataset, and it became possible to compare countries fairly  regardless of whether the country has a large or small population. With this new variable, it is possible to analyze how the unemployment percentage changes over time per country. Here is a short description of important functions used for the new variables:
+
+-inner_join to merge the datasets
+
+-as.numeric to correctly convert numbers for the calculation
+
+-for loop to calculate the unemployment percentage per year and store it in columns
+
+colnames & rownames to adjust column names and reset row numbers
+
+Variable 5
+
+```{r}
+unemployment_percent_df$avg_unemp_percent <-
+  round(
+    rowMeans(
+      unemployment_percent_df[ , grep("_percent$", names(unemployment_percent_df))],
+      na.rm = TRUE
+    ),
+  )
+```
+
+```{r}
+{r show data unemployment_percent_df}
+head(unemployment_percent_df, n = 3)
+```
+
+After the unemployment percentage variable was created, we also wanted to know the average percentage of unemployment over the years. That’s why we added a new column to the unemployment percentage dataset with the average unemployment percentage. This gives new insights, because instead of looking at each year separately, it is now visible at a glance how high or low the unemployment is in a country. This makes it easier to compare countries and, for example, display it on a map. Here is a short description of important functions used for the new variables:
+
+-rowMeans to calculate the average unemployment percentage per country over the entire period
+
+-grep to select the correct columns
+
+-round to neatly round the result to one decimal place
+
 ## 3.3 Visualize temporal variation
 
 ```{r echo=FALSE}
@@ -333,6 +447,8 @@ ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
   theme_minimal()
 
 ```
+
+This graph above shows the economic growth called GDP of the European Union over the period 2013 to 2024. As can be seen on the graph, the x-axis shows the years 2013 to 2024, and the y-axis shows GDP growth. And the pink line represents the corona pandemic of 2020. From this graph, you can clearly see that before 2020 there was increasing growth of the GDP, and that around 2020 there was a sharp decline in GDP. In the years after that, the GDP recovered and continued to grow. From this, it can be concluded that the 2020 corona pandemic had a big impact on the economy. And this graph fits well with this project because it shows how the economy can be influenced.
 
 ## 3.4 Visualize spatial variation
 
@@ -398,7 +514,19 @@ legend(
 )
 ```
 
-Here you provide a description of why the plot above is relevant to your specific social problem.
+To analyze how unemployment varies across Europe, we created a spatial map using the rworldmap package and calculated average unemployment percentages from 2015–2024. This visualization is directly tied to our social problem: understanding unemployment in the context of EU economic development. While earlier plots showed trends over time, this spatial map reveals important geographic differences across countries. We calculated unemployment percentages using the total work population. This adjustment allowed for fair comparison between countries of different sizes. Then, we averaged the values over ten years. The map highlights a clear North–South divide in Europe:
+
+-Southern Europe (e.g., Spain, Greece, Italy) shows high unemployment
+
+\- Northern and Western Europe (e.g., Germany, Netherlands, Denmark) show low unemployment
+
+\- Eastern Europe shows mixed results
+
+This indicates that location is a key factor in unemployment and that regional economic conditions, not just national policies, need to be considered.
+
+We used mapRegion = "Europe" to focus on relevant countries and maintain readability, ensuring that small countries are visible. Although rworldmap was used, future improvements could include more detailed shapefiles using the sf package for higher resolution.
+
+In summary, this spatial map complements our temporal analysis by showing where unemployment is most severe, reinforcing the need for geographically targeted policies within the EU. The visualization strengthens our understanding of how economic inequality plays out not just over time, but across space, aligning directly with our research topic.
 
 ## 3.5 Visualize sub-population variation
 
@@ -460,7 +588,7 @@ The plot shows that countries in the High growth group tend to have lower and le
 
 ## 3.6 Event analysis
 
-In this analyses we analyse 2 key veriables, we compare avarage GDP growth over the years in the EU, and we compare this to the avarage unemployment rate. We do this by adding two y-axes, on the left side we have cumulative GDP index, with its base year in 2015 we start with 100%.
+In this graph, we show 2 variables, first, total GDP growth in Europe, this line is blue. The orange line is about average unemployment. We have chosen that the blue and orange lines both start in the same point to create a clear picture. Therefore, we have taken 2015 as the base year for the Cumulative GDP Index, and adjusted the Y-axis of average unemployment accordingly. To overlay the unemployment series with the GDP index on one chart, we first divide the average‑unemployment values by 7.5 so they sit on the same scale as the GDP index. Then we use a secondary y‑axis that multiplies those scaled values by 7.5, restoring the true unemployment figures for labeling.
 
 ```{r analysis, echo=FALSE}
 
@@ -499,11 +627,29 @@ ggplot(combo_df, aes(x = Year)) +
   )
 ```
 
-Here you provide a description of why the plot above is relevant to your specific social problem.
-
-# Part 4 - Discussion
+This plot is relevant to our social problem, unemployment in Europe. By showing cumulative GDP growth averaged out in Europe and aligning this with the average unemployment, we can come to the conclusion that in periods with higher GDP growth, there is also lower unemployment.  On the other hand, you can also see that around the corona pandemic in 2020-2021, there is a drop in GDP and unemployment rises. This again shows the link between GDP and unemployment, and that investment in new green technologies, for example, can help in rising GDP and lower unemploymentPart 4 - Discussion
 
 ## 4.1 Discuss your findings
+
+We have used three different datasets to create four charts.  With the use of the data found, we made charts which we could use to visualize our findings. We have made the following charts:
+
+\-*Chart 1: Cumulative EU GDP growth (2015-2024)*
+
+\-*Chart 2: Unemployment rate in 2024 by GDP Growth*
+
+\-*Chart 3: EU GDP growth vs average unemployment (2015-2024)*
+
+\-*Chart 4: Average unemployment in Europe (2015-2024)*
+
+*Cumulative EU GDP growth (2015-2024).*This chart shows us the cumulative GDP index. On the X-axis, it shows the year starting from 2015 until 2024. On the Y-axis we have the Cumulative GDP index. For this chart we decided to use the line chart since it offers a nice and accurate visual of the annual change of the GDP index. And we also added a vertical red line in 2020 to give a visual representation of the start of COVID-19. Which clarifies when COVID-19 starts and the effect it has before and after.
+
+*Unemployment rate in 2024 by GDP Growth.* This chart gives us insight into the percentage rate of unemployment in 2024. We used the boxplot because it shows distributions of numeric data values, especially when you want to compare them between multiple groups. In this case our different groups are sorted by GDP growth. Dividing it into three groups: low growth, middle growth, and high growth.
+
+*EU GDP growth vs average unemployment (2015-2024).* This chart compares two economic indicators over a period of 10 years (2015-2024). Noticeably, it contains two y-axes. The left y-axis (blue) is the cumulative GDP Index with 100 as the base year and the right y-axis (orange) is the average unemployment in thousands. With the help of this chart, we can visually analyse the relationship between GDP growth and the average unemployment.
+
+*Average unemployment in Europe (2015-2024).* The last chart is a map of Europe. It illustrates the average unemployment rate across various European countries for the years 2015-2024. Each country is colour-coded according to its unemployment rate. Green means low unemployment, yellow means medium unemployment and red indicates high unemployment. This way unemployment rates between countries can be easily compared.
+
+Based on the charts and datasets provided, we can draw up the following findings. In the chart of *EU GDP growth vs average unemployment (2015-2024)* we can derive that the EU experienced a steady economic growth from 2015-2019, a small recession in 2020 and a strong recovery afterwards. Unemployment consistently decreased over the period, showing only minor disruptions during 2020. Because of this we can conclude that when the GDP increases, unemployment decreases. Looking at the map of average unemployment in Europe, we can gather that the majority of central and some of the northern countries have an overall low unemployment rate in comparison to southern and some western countries.  But also, when you look at chart 2 you can conclude that the unemployment rate will be higher when the GDP growth group is lower.
 
 # Part 5 - Reproducibility
 
@@ -513,14 +659,14 @@ Provide the link to your PUBLIC repository here: ...
 
 ## 5.2 Reference list
 
-Eurostat. (n.d.). Unemployment by sex and age – monthly data [Data set]. European Commission.
+European Commission. (2025). *Statistics*. <https://commission.europa.eu/topics/statistics_en>
 
-<https://ec.europa.eu/eurostat/databrowser/view/lfsa_ugad/default/table?lang=en>
+Eurostat. (n.d.). *Unemployment by sex and age – monthly data* [Data set]. European Commission. <https://ec.europa.eu/eurostat/databrowser/view/lfsa_ugad/default/table?lang=en>
 
-Eurostat. (18/06/2025). Real GDP growth rate - volume (tec00115). European Commission.
+Eurostat. (2025, June 12). *Population, aged 15–74 – EU labour force survey (tipslm16)*. <https://ec.europa.eu/eurostat/databrowser/view/tipslm16/default/table?lang=en>
 
-<https://ec.europa.eu/eurostat/databrowser/view/tec00115/default/table?lang=en>
+Eurostat. (2025, June 18). *Real GDP growth rate – volume (tec00115)*. <https://ec.europa.eu/eurostat/databrowser/view/tec00115/default/table?lang=en>
 
-Eurostat. (12/06/2025). Population, aged 15-74 - EU labour force survey (tipslm16).
+Office of Disease Prevention and Health Promotion. (n.d.). *Employment – Healthy People 2030*. U.S. Department of Health and Human Services. <https://health.gov/healthypeople/priority-areas/social-determinants-health/literature-summaries/employment>
 
-<https://ec.europa.eu/eurostat/databrowser/view/tipslm16/default/table?lang=en>
+Pohlan, L. (2019). Unemployment and social exclusion. *Journal of Economic Behavior & Organization*, *164*, 273–292. <https://www.sciencedirect.com/science/article/pii/S0167268119301969?utm_source=chatgpt.com>
