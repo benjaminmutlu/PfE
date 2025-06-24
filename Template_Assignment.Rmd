@@ -185,7 +185,6 @@ colnames(Total_Work_population)[1]  <- "Country"
 head(Total_Work_population, n = 3)
 ```
 
-
 ## 3.2 Generate necessary variables
 
 Variable 1: Classification by Economic Growth
@@ -235,6 +234,7 @@ First, we used all available data to create a new column representing the total 
 head(newxx_df[, c(1,25)], n = 5)
 
 ```
+
 We use this data to clearly show the unemployment rates in different types of countries with varying levels of growth, in order to identify a possible relationship between them. We use a boxplot for this, so the three different groups are clearly arranged side by side and easy to compare.
 
 Variable 2: Cumulative GDP Growth
@@ -257,7 +257,6 @@ GDP_df <- GDP_df %>%
 ```
 
 After creating these two variables, we created a new data frame called growth_df. In this data frame, we calculated the average GDP growth per year across all countries. We then used this data to create two plots: EU GDP Growth vs. Average Unemployment and Cumulative EU GDP Growth.
-
 
 ```{r gen_ data_frame_avg_GDP_growth}
 gdp_growth <- GDP_df %>%
@@ -293,7 +292,7 @@ We visualize the average cumulative GDP growth across EU countries from 2013 to 
 
 Variable 3:
 
-To analyse 
+To analyse
 
 ```{r gen_var_Growth_Rate}
 gdp_growth <- GDP_df %>%
@@ -336,6 +335,7 @@ ggplot(growth_df, aes(x = Year, y = TotalGDP)) +
 ```
 
 ## 3.4 Visualize spatial variation
+
 ```{r}
 # Zorg dat kolomnamen kloppen
 colnames(Total_Work_population)[1] <- "Country"
@@ -402,7 +402,9 @@ Here you provide a description of why the plot above is relevant to your specifi
 
 ## 3.5 Visualize sub-population variation
 
-To explore how unemployment rates differ across sub-populations, we analyzed gender-based variation across European countries from 2015 to 2024. We used annual data from Eurostat (2025) to compare unemployment rates between men and women. The figure below presents boxplots for each year, showing the distribution of unemployment rates across countries, grouped by gender.
+To explore how unemployment varies across different levels of economic performance, we classified European countries into three economic classes: Low growth, Middle growth, and High growth. These classes were derived by calculating the total cumulative GDP growth for each country between 2015 and 2024. This was done using annual GDP growth data retrieved from Eurostat (2025), and countries were then grouped into tertiles based on their total growth performance.
+
+We then compared the unemployment rates in 2024 across these economic classes. The unemployment data was merged with the GDP dataset to form a unified data frame, which enabled us to conduct this sub-population analysis.
 
 ```{r visualise_subpopulations, echo=FALSE}
 # Bereken totale GDP-groei per land
@@ -454,11 +456,9 @@ ggplot(newxx_df, aes(x = GDP_Growth_Group, y = `2024_percent`, fill = GDP_Growth
 
 ```
 
-The plot shows that while men and women follow similar overall trends, women tend to exhibit a slightly wider spread and, in several years (notably 2019, 2021, 2023, and 2024), higher median unemployment rates than men. The interquartile ranges also suggest greater variability in female unemployment, especially in later years.
+The boxplot reveals that countries in the High growth category tend to have lower unemployment rates, with both a lower median and smaller spread. In contrast, Low growth and Middle growth groups show greater variability and higher central unemployment values. These patterns suggest that stronger economic performance over the past decade may be associated with improved labor market outcomes. However, differences within each group also highlight the role of country-specific factors beyond GDP growth alone.
 
-This subgroup analysis reveals that gender disparities persist in European labor markets. The broader variation in female unemployment may reflect structural inequalities, differences in labor force participation, or sector-specific employment shocks. By quantifying this divergence, we highlight the importance of tailoring labor policies to address gender-specific challenges in the labor market.
-
-This visualization aligns closely with our project’s objective of examining unemployment and economic resilience. It emphasizes that interpreting macroeconomic indicators like unemployment in aggregate can overlook important insights. By breaking down the data by gender, we uncover disparities that are essential for informing more targeted and effective policy responses.
+This sub-population comparison illustrates the unequal impact of unemployment across economic contexts, reinforcing the broader relationship between macroeconomic growth and labor market performance in Europe.
 
 ## 3.6 Event analysis
 
